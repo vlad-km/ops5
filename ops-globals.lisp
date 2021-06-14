@@ -76,6 +76,8 @@
 (defun delete (x seq &key key (test #'eql test-p) (test-not #'eql test-not-p))
   (remove x seq :key key :test test :test-not test-not))
 
+(defun force-output (&rest x) nil)
+
 #+ops5
 (in-package :cl-user)
 
