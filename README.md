@@ -12,3 +12,10 @@ public domain.
 
 The original, unchanged README file is available unchanged as
 [README.orig](README.orig).
+
+On June 14, 2021 modified by Vladimir Mezentsev to run on JSCL Common Lisp implementation.
+All updates are in the public domain.
+
+Fossil Lisp code, ancient as mammoth's shit.
+
+Have a fun
