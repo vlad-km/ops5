@@ -73,7 +73,7 @@
 
 (defun gelm (x k)
                                         ; (locally) 				;@@@ locally isn't implemented yet
-  (declare (optimize speed))
+  ;;(declare (optimize speed))
   (prog (ce sub)
      (setq ce (truncate  k 10000.))     ;use multiple-value-setq???
      (setq sub (- k (* ce 10000.)))     ;@@@ ^
@@ -160,4 +160,8 @@ This is unnecessary in Spice Lisp
 (princ "*** use control-d for ops break, or setq *break-character asciival***")
 
 |#
+
+#+ops5
+(in-package :cl-user)
+
 ;;; *EOF*

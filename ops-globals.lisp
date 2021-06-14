@@ -14,8 +14,16 @@
 ;;; authors or by Carnegie-Mellon University.
 ;;;
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (unless (find-package :ops)
+    (make-package :ops :use (list 'cl))))
+
+
 #+ops5
 (in-package "OPS")
+
+#+ops5
+(export '(#:make #:modify #:crlf #:--> ))
 
 ;;; Global variables also used by OPS modules.
 
@@ -59,4 +67,17 @@
   (clrhash *production-table*)
   (clrhash *topnode-table*)
   (clrhash *external-routine-table*))
+
+
+(defun svref (v i) (aref v i))
+
+(defun float (v) v)
+
+(defun delete (x seq &key key (test #'eql test-p) (test-not #'eql test-not-p))
+  (remove x seq :key key :test test :test-not test-not))
+
+#+ops5
+(in-package :cl-user)
+
+;;; EOF
 

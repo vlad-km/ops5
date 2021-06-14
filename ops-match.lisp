@@ -614,4 +614,7 @@
 	          (return (car next)))
 	         (t (go loop))))) 
 
+#+ops5
+(in-package :cl-user)
+
 ;;; *EOF*

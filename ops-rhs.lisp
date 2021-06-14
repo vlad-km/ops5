@@ -656,4 +656,7 @@
 
 (defun refresh-add (x) (add-to-wm (car x) (cdr x))) 
 
+#+ops5
+(in-package :cl-user)
+
 ;;; *EOF*

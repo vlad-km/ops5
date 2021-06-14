@@ -76,6 +76,8 @@
 (defmacro pm (&body z)
   `(ops-pm ',z))
 
+(export '(ops::run ops::ppwm ops::wm ops::pm))
+
 (defmacro cs (&body z)
   `(ops-cs ',z))
 
@@ -88,6 +90,8 @@
 (defmacro watch (&body z)
   `(ops-watch ',z))
 
+(export '(ops::cs ops::matches ops::strategy ops::watch))
+
 (defmacro pbreak (&body z)
   `(ops-pbreak ',z))
 
@@ -96,6 +100,8 @@
 
 (defmacro p (&body z) 
   `(ops-p ',z))
+
+(export '(ops::pbreak ops::excise ops::p))
 
 (defmacro external (&body z) 
   `(ops-external ',z))
@@ -106,6 +112,8 @@
 (defmacro literalize (&body z)
   `(ops-literalize ',z))
 
+(export '(ops::external ops::literal ops::literalize))
+
 (defmacro vector-attribute (&body l)
   `(ops-vector-attribute ',l))
 
@@ -113,6 +121,7 @@
   (cond ((equal z '(*)) (process-changes nil (get-wm nil)))
 	(t (process-changes nil (get-wm z))))) 
 
+(export '(ops::vector-attribute ops::top-level-remove))
 
 
 ;;; Functions for run command
@@ -203,7 +212,6 @@
 		             *limit-token* *p-name*)
 	       (setq *halt-flag* t))))
 
-
 (defun print-times (mess)
   (prog (cc)
      (cond (*break-flag* (terpri) (return mess)))
@@ -222,6 +230,7 @@
      (format t "~3D mean token memory size (~D maximum)~%"
 	           (round (float *total-token*) cc)
 	           *max-token*)))
+
 
 
 ;;; Functions for strategy command
@@ -724,5 +733,8 @@
 		        (princ '| occurrences)|)))
      (setq cnts (cdr cnts))
      (go l2p))) 
+
+#+ops5
+(in-package :cl-user)
 
 ;;; *EOF*

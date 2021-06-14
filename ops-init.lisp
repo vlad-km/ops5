@@ -56,5 +56,8 @@
   (setq *class-list* nil
 	      *pcount* 0))
 
+#+ops5
+(in-package :cl-user)
+
 ;;; *EOF*
 

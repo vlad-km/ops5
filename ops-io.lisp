@@ -527,4 +527,7 @@
 	    (list v)
 	    (cons v (getupto end))))))
 
+#+ops5
+(in-package :cl-user)
+
 ;;; *EOF*

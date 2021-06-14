@@ -194,4 +194,7 @@
   (let ((stream (trace-file)))
     (format stream "~&~S" x)))
 
+#+ops5
+(in-package :cl-user)
+
 ;;; *EOF*

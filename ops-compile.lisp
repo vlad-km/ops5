@@ -833,4 +833,7 @@
   (or (member ce-var *rhs-bound-ce-vars*)
       (ce-var-dope ce-var)))
 
+#+ops5
+(in-package :cl-user)
+
 ;;; *EOF*
