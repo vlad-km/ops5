@@ -76,6 +76,7 @@
 (defmacro pm (&body z)
   `(ops-pm ',z))
 
+#+ops5
 (export '(ops::run ops::ppwm ops::wm ops::pm))
 
 (defmacro cs (&body z)
@@ -90,6 +91,7 @@
 (defmacro watch (&body z)
   `(ops-watch ',z))
 
+#+ops5
 (export '(ops::cs ops::matches ops::strategy ops::watch))
 
 (defmacro pbreak (&body z)
@@ -101,6 +103,7 @@
 (defmacro p (&body z) 
   `(ops-p ',z))
 
+#+ops5
 (export '(ops::pbreak ops::excise ops::p))
 
 (defmacro external (&body z) 
@@ -112,6 +115,7 @@
 (defmacro literalize (&body z)
   `(ops-literalize ',z))
 
+#+ops5
 (export '(ops::external ops::literal ops::literalize))
 
 (defmacro vector-attribute (&body l)
@@ -121,6 +125,7 @@
   (cond ((equal z '(*)) (process-changes nil (get-wm nil)))
 	(t (process-changes nil (get-wm z))))) 
 
+#+ops5
 (export '(ops::vector-attribute ops::top-level-remove))
 
 

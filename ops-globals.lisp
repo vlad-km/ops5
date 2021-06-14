@@ -76,6 +76,10 @@
 (defun delete (x seq &key key (test #'eql test-p) (test-not #'eql test-not-p))
   (remove x seq :key key :test test :test-not test-not))
 
+
+(defun delete (x seq &rest keys)
+  (apply 'remove x seq keys))
+
 (defun force-output (&rest x) nil)
 
 #+ops5

@@ -1,7 +1,7 @@
-                          OPS5 LANGUAGE INTRODUCTION
+OPS5 LANGUAGE INTRODUCTION
 
-                                MICHAEL MAULDIN
-                                 OCTOBER, 1992
+MICHAEL MAULDIN
+OCTOBER, 1992
 
   This  document  contains  a  sketchy  description  of OPS5 language features,
 syntax and semantics of conditions and actions.  For more information,  consult
@@ -118,7 +118,7 @@ no argument     Print current watch level (initialized to 1) unchanged
 
 (run 1)         for single stepping
 
-                           [The WM and PPWM Commands
+                           The WM and PPWM Commands
 
   (wm) -- list the contents of working memory, optional arguments specify  time
 tags; if no time tags are given, shows all elements.
@@ -197,7 +197,9 @@ not included.
    - (pbreak) -- says which rules are broken
 
    - breaks after rule fires
-                               The BACK Command
+                               
+
+The BACK Command
 
    - (back <n>) undoes the effects of up  to  32  rule  firings,  provided
      there are no external references (user-defined functions) in any RHS
