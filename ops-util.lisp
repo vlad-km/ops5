@@ -32,6 +32,7 @@
 ;;; 13-OCT-92 mk    Replaced DTPR with CONSP.
 
 
+#+ops5
 (in-package "OPS")
 
 
@@ -48,72 +49,74 @@
 ;;; Functions that were revised so that they would compile efficiently
 (eval-when (compile eval load)
 
-(defmacro == (x y)
-  ;; Skef Wholey - The = function in Common Lisp will compile into good code
-  ;; (in all implementations that I know of) when given the right declarations.
-  ;; In this case, we know both numbers are fixnums, so we use that 
-  ;; information.
-  `(= (the fixnum ,x) (the fixnum ,y)))
+  (defmacro == (x y)
+    ;; Skef Wholey - The = function in Common Lisp will compile into good code
+    ;; (in all implementations that I know of) when given the right declarations.
+    ;; In this case, we know both numbers are fixnums, so we use that 
+    ;; information.
+    `(= (the fixnum ,x) (the fixnum ,y)))
 
-(defmacro =alg (a b)
-  ;; =ALG returns T if A and B are algebraically equal.
-  ;; This corresponds to equalp - Dario Giuse
-  ;; But equalp uses eql for comparison if the things are numbers - Skef Wholey
-  `(eql ,a ,b))
+  (defmacro =alg (a b)
+    ;; =ALG returns T if A and B are algebraically equal.
+    ;; This corresponds to equalp - Dario Giuse
+    ;; But equalp uses eql for comparison if the things are numbers - Skef Wholey
+    `(eql ,a ,b))
 
-(defmacro fast-symeval (&body z)
-  `(symbol-value ,(car z)))
+  (defmacro fast-symeval (&body z)
+    `(symbol-value ,(car z)))
 
-) ;eval-when
+  ) ;eval-when
  
 
 ; The loops in gelm were unwound so that fewer calls on DIFFERENCE
 ; would be needed
 
 (defun gelm (x k)
-  ; (locally) 				;@@@ locally isn't implemented yet
+                                        ; (locally) 				;@@@ locally isn't implemented yet
   (declare (optimize speed))
   (prog (ce sub)
-    (setq ce (truncate  k 10000.))		;use multiple-value-setq???
-    (setq sub (- k (* ce 10000.)))		;@@@ ^
+     (setq ce (truncate  k 10000.))     ;use multiple-value-setq???
+     (setq sub (- k (* ce 10000.)))     ;@@@ ^
     
-    celoop (and (eq ce 0.) (go ph2))
-    (setq x (cdr x))
-    (and (eq ce 1.) (go ph2))
-    (setq x (cdr x))
-    (and (eq ce 2.) (go ph2))
-    (setq x (cdr x))
-    (and (eq ce 3.) (go ph2))
-    (setq x (cdr x))
-    (and (eq ce 4.) (go ph2))
-    (setq ce (- ce 4.))
-    (go celoop)
-    ph2  (setq x (car x))
-    subloop (and (eq sub 0.) (go finis))
-    (setq x (cdr x))
-    (and (eq sub 1.) (go finis))
-    (setq x (cdr x))
-    (and (eq sub 2.) (go finis))
-    (setq x (cdr x))
-    (and (eq sub 3.) (go finis))
-    (setq x (cdr x))
-    (and (eq sub 4.) (go finis))
-    (setq x (cdr x))
-    (and (eq sub 5.) (go finis))
-    (setq x (cdr x))
-    (and (eq sub 6.) (go finis))
-    (setq x (cdr x))
-    (and (eq sub 7.) (go finis))
-    (setq x (cdr x))
-    (and (eq sub 8.) (go finis))
-    (setq sub (- sub 8.))
-    (go subloop)
-    finis (return (car x))) ) ;  )  	;end prog,< locally >, defun
+   celoop
+     (and (eq ce 0.) (go ph2))
+     (setq x (cdr x))
+     (and (eq ce 1.) (go ph2))
+     (setq x (cdr x))
+     (and (eq ce 2.) (go ph2))
+     (setq x (cdr x))
+     (and (eq ce 3.) (go ph2))
+     (setq x (cdr x))
+     (and (eq ce 4.) (go ph2))
+     (setq ce (- ce 4.))
+     (go celoop)
+   ph2
+     (setq x (car x))
+   subloop
+     (and (eq sub 0.) (go finis))
+     (setq x (cdr x))
+     (and (eq sub 1.) (go finis))
+     (setq x (cdr x))
+     (and (eq sub 2.) (go finis))
+     (setq x (cdr x))
+     (and (eq sub 3.) (go finis))
+     (setq x (cdr x))
+     (and (eq sub 4.) (go finis))
+     (setq x (cdr x))
+     (and (eq sub 5.) (go finis))
+     (setq x (cdr x))
+     (and (eq sub 6.) (go finis))
+     (setq x (cdr x))
+     (and (eq sub 7.) (go finis))
+     (setq x (cdr x))
+     (and (eq sub 8.) (go finis))
+     (setq sub (- sub 8.))
+     (go subloop)
+   finis (return (car x))) ) ;  )  	;end prog,< locally >, defun
 
 (defun %warn (what where)
-  (format t "~&?~@[~A~]..~A..~A"
-	   *p-name* where what)
-  where) 
+  (format t "~% [~A]..~A..~A"  *p-name* where what))
+;;  where) 
 
 (defun %error (what where)
   (%warn what where)
@@ -125,17 +128,17 @@
       ((eq sublist-a sublist-b)
        t)
     (when (or (null sublist-a)
-	      (null sublist-b)
-	      (not (eq (car sublist-a) (car sublist-b))))
+	            (null sublist-b)
+	            (not (eq (car sublist-a) (car sublist-b))))
       (return nil)))
   #|(prog nil
-    lx   (cond ((eq la lb) (return t))
-	       ((null la) (return nil))
-	       ((null lb) (return nil))
-	       ((not (eq (car la) (car lb))) (return nil)))
-    (setq la (cdr la))
-    (setq lb (cdr lb))
-    (go lx))|#
+  lx   (cond ((eq la lb) (return t))    ;
+	((null la) (return nil))              ;
+	((null lb) (return nil))              ;
+	((not (eq (car la) (car lb))) (return nil))) ;
+  (setq la (cdr la))                    ;
+  (setq lb (cdr lb))                    ;
+  (go lx))|#
   ) 
 
 ;@@@ revision suggested by sf/inc. by gdw

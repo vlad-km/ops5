@@ -46,7 +46,7 @@
 
 ;;; used only in this file.
 (defmacro append-string (x)
-  `(setq wrstring (concatenate 'simple-string wrstring ,x)))
+  `(setq wrstring (jscl::concat wrstring ,x)))
 
 
 (defun ops-write (z)
@@ -117,9 +117,9 @@
 	  ((or ($ifile id)($ofile id))
 	   (%warn '|openfile: name already in use| id)
 	   (return nil)))
-;@@@	(cond ((eq mode 'in) (setf (gethash id *inputfile-table*) (infile file)))
-;@@@	      ((eq mode 'out) (setf (gethash id *outputfile-table*) (outfile file)))
-; dec 7 83 gdw added setq : is putprop needed ? )
+;;@@@	(cond ((eq mode 'in) (setf (gethash id *inputfile-table*) (infile file)))
+;;@@@	      ((eq mode 'out) (setf (gethash id *outputfile-table*) (outfile file)))
+;; dec 7 83 gdw added setq : is putprop needed ? )
     (cond ((eq mode 'in) (setf (gethash id *inputfile-table*)
 			       (setq id (infile file))))
 	  ((eq mode 'out) (setf (gethash id *outputfile-table*)

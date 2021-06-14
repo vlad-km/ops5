@@ -14,6 +14,7 @@
 ;;; authors or by Carnegie-Mellon University.
 ;;;
 
+#+ops5
 (in-package "OPS")
 
 ;;; Global variables also used by OPS modules.

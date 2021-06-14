@@ -16,6 +16,7 @@
 
 ;;;; Definitions and functions for backing up.
 
+#+ops5
 (in-package "OPS")
 
 
@@ -82,18 +83,18 @@
     (let ((z (cons rule data)))
       (member z *refracts* :test #'equal)))
   #|(prog (z)
-    (and (null *refracts*) (return nil))
-    (setq z (cons rule data))
-    (return (member z *refracts* :test #'equal)))|#
+  (and (null *refracts*) (return nil))  ;
+  (setq z (cons rule data))             ;
+  (return (member z *refracts* :test #'equal)))|#
   )
 
 
 (defun record-index-plus (k)
   (incf *record-index* k)
   (cond ((< *record-index* 0.)
-	 (setq *record-index* *max-record-index*))
-	((> *record-index* *max-record-index*)
-	 (setq *record-index* 0.)))) 
+	       (setq *record-index* *max-record-index*))
+	      ((> *record-index* *max-record-index*)
+	       (setq *record-index* 0.)))) 
 
 ; the following routine initializes the record.  putting nil in the
 ; first slot indicates that that the record does not go back further
@@ -145,32 +146,34 @@
 
 (defun undo-record (r)
   (prog (save act a b rate)
-    ;###	(comment *recording* must be off during back up)
-    (setq save *recording*)
-    (setq *refracts* nil)
-    (setq *recording* nil)
-    (and *ptrace* (back-print (list '|undo:| (car r) (cadr r))))
-    (setq r (cddr r))
-    top  (and (atom r) (go fin))
-    (setq act (car r))
-    (setq a (cadr r))
-    (setq b (caddr r))
-    (setq r (cdddr r))
-    (and *wtrace* (back-print (list '|undo:| act a)))
-    (cond ((eq act '<=wm) (add-to-wm b a))
-	  ((eq act '=>wm) (remove-from-wm b))
-	  ((eq act '<=refract)
-	   (setq *refracts* (cons (cons a b) *refracts*)))
-	  ((and (eq act '=>refract) (still-present b))
-	   (setq *refracts* (tree-remove (cons a b) *refracts*))
-	   (setq rate (rating-part (gethash a *topnode-table*)))
-	   (removecs a b)
-	   (insertcs a b rate))
-	  (t (%warn '|back: cannot undo action| (list act a))))
-    (go top)
-    fin  (setq *recording* save)
-    (setq *refracts* nil)
-    (return nil))) 
+     ;;###	(comment *recording* must be off during back up)
+     (setq save *recording*)
+     (setq *refracts* nil)
+     (setq *recording* nil)
+     (and *ptrace* (back-print (list '|undo:| (car r) (cadr r))))
+     (setq r (cddr r))
+   top
+     (and (atom r) (go fin))
+     (setq act (car r))
+     (setq a (cadr r))
+     (setq b (caddr r))
+     (setq r (cdddr r))
+     (and *wtrace* (back-print (list '|undo:| act a)))
+     (cond ((eq act '<=wm) (add-to-wm b a))
+	         ((eq act '=>wm) (remove-from-wm b))
+	         ((eq act '<=refract)
+	          (setq *refracts* (cons (cons a b) *refracts*)))
+	         ((and (eq act '=>refract) (still-present b))
+	          (setq *refracts* (tree-remove (cons a b) *refracts*))
+	          (setq rate (rating-part (gethash a *topnode-table*)))
+	          (removecs a b)
+	          (insertcs a b rate))
+	         (t (%warn '|back: cannot undo action| (list act a))))
+     (go top)
+   fin
+     (setq *recording* save)
+     (setq *refracts* nil)
+     (return nil))) 
 
 
 
@@ -180,12 +183,12 @@
 
 (defun still-present (data)
   (prog nil
-    loop
-    (cond ((atom data) (return t))
-	  ((creation-time (car data))
-	   (setq data (cdr data))
-	   (go loop))
-	  (t (return nil))))) 
+   loop
+     (cond ((atom data) (return t))
+	         ((creation-time (car data))
+	          (setq data (cdr data))
+	          (go loop))
+	         (t (return nil))))) 
 
 (defun back-print (x) 
   (let ((stream (trace-file)))
