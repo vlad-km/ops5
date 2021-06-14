@@ -16,6 +16,7 @@
 
 ;;;; This file contains all the functions pertaining to I/O.
 
+#+ops5
 (in-package "OPS")
 ;; (shadow '(write))    ; Should get this by requiring ops-rhs
 
