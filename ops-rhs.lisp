@@ -83,9 +83,11 @@
     (end-record))) 
 
 (defun eval-args (z)
+  ;;(warn "~%EVAL ARGS ~a" z)
   (prog (r)
      (rhs-tab 1.)
    la
+     ;;(warn "EVAL-ARGS LA ~a" z)
      (and (atom z) (return nil))
      (setq r (pop z))
      (when (eq r '^)
@@ -104,7 +106,7 @@
 (defmacro make (&body z)
   `(ops-make ',z))
 
-(defmacro remove (&body z)
+(defmacro remove! (&body z)
   `(ops-remove ',z))
 
 (defmacro modify (&body z)
@@ -119,7 +121,7 @@
 (defmacro default (&body z)
   `(ops-default ',z))
 
-(defmacro write (&body z)
+(defmacro write! (&body z)
   `(ops-write ',z))
 
 (defmacro crlf (&body z)
@@ -134,6 +136,17 @@
 (defmacro call (&body z)
   `(ops-call ',z))
 
+;;; 5.3.10. bind 
+;;; The action bi nd is used to assign values to variables. There are two forms of calls on bi nd. In the more 
+;;; general form bi nd is given two arguments: a variable and an RHS pattern. It evaluates the pattern and then 
+;;; assigns to the variable the value that is in position 1 of the result element For example, to add 1 to the 
+;;; binding of <x>, the following would be executed. 
+;;;   (bind <x> (compute <x> + 1)) 
+;;; In the other form of bind, the action is given only one argument - the variable to be bound. When this 
+;;; action is executed, a new symbolic atom is created and assigned to the variable. Thus the action 
+;;;   (bind <z>) 
+;;; is equivalent to 
+;;;   (bind <z> (genatom))
 (defmacro bind (&body z)
   `(ops-bind ',z))
 
@@ -143,20 +156,85 @@
 (defmacro build (&body z)
   `(ops-build ',z))
 
+;;; 5.2.7. A substr 
+;;; The function substr extracts a sequence of values from an existing working memory element and puts 
+;;; the values in the result element The function takes three arguments. The first argument is an element 
+;;; designator. (See Section 5.1.) This argument indicates which working memory element is to be examined to 
+;;; get the values. The second argument should be an integer, an attribute name, or a variable that is bound to an 
+;;; integer or attribute name. This argument indicates the first value that is to be extracted. The third argument 
+;;; should be an integer, an attribute name, a variable that is bound to an integer or attribute name, or the symbol 
+;;; inf. This argument indicates the final value to extract.
+;;; For example, if <w> is bound to (a b c d e), 
+;;; then evaluating 
+;;;    (make .. . ti o (subst r <w> 3 3) .. . ) 
+;;; will cause the atom c to be copied into position 10 of the result element When more than one value is 
+;;; 25 extracted, die values are placed in contiguous fields in die element; dius 
+;;; (make .. . ti l (subst r <w> 2 4) .. . ) 
+;;; will cause b to be copied into position 11, c to be copied into position 12, and d to be copied into position 13. 
+;;; The special symbol inf indicates that substr is to continue taking values until it reaches the end of the 
+;;; element it is extracting them from. Thus 
+;;; (make .. . tl 4 (subst r <w> 4 inf) .. . ) 
+;;; will copy d into position 14 and e into position 15.
 (defmacro substr (&body l)
   `(ops-substr ',l))
 
+
+;;; 5.27.5. compute 
+;;; The function compute evaluates arithmetic expressions. The expressions can contain five operators, +, 
+;;; *, // , and \\ , which denote respectively addition, subtraction, multiplication, division, and modulus. 
+;;; Standard infix notation is used, but operator precedence is not used; compute evaluates the operators from 
+;;; right to left. Parentheses can be used to override the right to left evaluation. Only numbers and variables that 
+;;; are bound to numbers can be used in the expressions. Typical calls on compute include 
+;;;   (compute <x> + 1) 
+;;;   (compute (<b> * <b>) - 4 * <a> * <c>)
 (defmacro compute (&body z)
   `(ops-compute ',z))
 
+;;; 5.17A litval 
+;;; The function litva l puts into the result element the number which has been assigned to an attribute 
+;;; name. That is, if a is an attribute name, then (1 i tval a) determines the number of the field that is used 
+;;; for attribute a and puts the number into the result element The function takes one argument, which 
+;;; normally is an attribute name or a variable which is bound to an attribute name. The function will also accept 
+;;; numbers or variables bound to numbers; when it is called with such an argument, it returns the number.
 (defmacro litval (&body z)
   `(ops-litval ',z))
 
+;;; The function accept takes input from the user and puts it into the result element The function takes 
+;;; either one or zero arguments. If it has an argument, the argument must be a symbolic atom or a variable that
+;;; is bound to a symbolic atom. The following are legal calls on accept 
+;;;    (accept) 
+;;;    (accept infile ) 
+;;;    (accept <x>) 
+;;; If accept is called with no arguments, it takes its input from the current default input stream. (See Section 
+;;; 5.3.6.) If it is called with an argument, accept takes its input from the file that has been associated with the 
+;;; atom. (See Section 5.3.4.) 
+;;; The function will read either a single atom or a list. When it reads a list it strips the parentheses from the 
+;;; list and puts the atoms of the list into the result element The interpreter determines whether it is to read a list 
+;;; or a single atom by inspecting the first printing character in the input If the interpreter encounters (, it 
+;;; expects to read a list so it does not stop reading until it reaches ). If it encounters any other printing 
+;;; character, it reads only one atom. 
+;;; If accept is asked to read beyond the end of a file, it puts the atom end-of-f i 1 e in the result element 
+;;; In the LISP-based interpreters, if the end of the file is reached while a list is being read, a LISP error will 
+;;; occur. 
 (defmacro accept (&body z)
   `(ops-accept ',z))
 
+;;; The function accept!ine is also used to read input The difference between accept and acceptl i ne 
+;;; is that the latter always reads exactiy one line of input. The function reads everything on the line, removes 
+;;; any parentheses that are there, and puts the atoms into the result element 
+;;; This function takes any number of arguments. If the first argument is associated with an input file (see 
+;;; Section 5.3.4) acceptline takes the input from that file; otherwise, it takes the input from the current 
+;;; default input stream (see Section 5.3.6). The rest of the arguments are used when a null line is read or when 
+;;; acceptl i ne tries to read beyond the.end of a file. A null line is a line that contains no characters other than 
+;;; 27 spaces and tabs. When accept 1 i ne encounters a null line or the end of a file, it puts its arguments into the 
+;;; result element. (If the first argument is not the name of a file, it is put in the result element along with the 
+;;; other arguments.) Thus when the function 
+;;; (acceptline nothing read) 
+;;; is evaluated, the interpreter will read the default input (assuming that not hi ng is not associated to a file) and 
+;;; then put into the result element either one line of input or the two atoms nothing and read.
 (defmacro acceptline (&body z)
   `(ops-acceptline ',z))
+
 
 (defmacro arith (&body z)
   `(ops-arith ',z))
@@ -181,27 +259,61 @@
      (setq z (cdr z))
      (go top))) 
 
+;;; bug:
 (defun ops-modify (z)
   (prog (old)
      (cond ((not *in-rhs*)
 	          (%warn '|cannot be called at top level| 'modify)
 	          (return nil)))
      (setq old (get-ce-var-bind (car z)))
+     ;;(warn "OLD ~a" old)
      (cond ((null old)
 	          (%warn '|modify: first argument must be an element variable|
 		               (car z))
 	          (return nil)))
      (remove-from-wm old)
+     ;;(warn "Z AFTER REMOVE ~a" z)
      (setq z (cdr z))
      ($reset)
    copy
      (and (atom old) (go fin))
      ($change (car old))
+     ;;(warn "CHANGE OLD ~a" old)
      (setq old (cdr old))
      (go copy)
    fin
+     ;;(warn "FIN ~a ~a" old z)
+     (eval-args z)
+     ($assert)))
+
+(defun ops-modify (z)
+  (prog (old)
+     (cond ((not *in-rhs*)
+	          (%warn '|cannot be called at top level| 'modify)
+	          (return nil)))
+     (setq old (get-ce-var-bind (car z)))
+     ;;(warn "OLD ~a" old)
+     (cond ((null old)
+	          (%warn '|modify: first argument must be an element variable|
+		               (car z))
+	          (return nil)))
+     (remove-from-wm old)
+     ;;(warn "Z AFTER REMOVE ~a" z)
+     (setq z (cdr z))
+     ($reset)
+     (go fin)
+   copy
+     (and (atom old) (go fin))
+     ($change (car old))
+     ;;(warn "CHANGE OLD ~a" old)
+     (setq old (cdr old))
+     (go copy)
+   fin
+     (push (car old) z)
+     ;;(warn "FIN ~a ~a" old z)
      (eval-args z)
      ($assert))) 
+
 
 (defun ops-bind (z)
   (prog (val)
@@ -459,6 +571,7 @@
       x)) 
 
 (defun $varbind (x)
+  ;;(warn "$VARBIND ~a" x)
   (if *in-rhs*
       ;; If we're in the RHS, lookup the binding. 
       (let ((binding (assoc x *variable-memory*)))
@@ -469,6 +582,7 @@
       x))
 
 (defun $change (x)
+  ;;(warn "$CHANGE ~a" x)
   (if (consp  x)			;dtpr\consp gdw
       (eval-function x)	
       ($value ($varbind x)))) 
@@ -560,6 +674,7 @@
 ;;; the thing matched is not in wm at the time)
 
 (defun add-to-wm (wme override)
+  ;;(warn "ADD-TO-WM ~a ~a" wme override)
   (prog (fa z part timetag port)
      (setq *critical* t)
      (setq *current-wm* (1+ *current-wm*))
@@ -585,10 +700,15 @@
 ;;; remove-from-wm uses eq, not equal to determine if wme is present
 
 (defun remove-from-wm (wme)
+  ;;(warn "REMOVE-WM ~a" wme)
   (prog (fa z part timetag port)
      (setq fa (wm-hash wme))
+     ;;(setq fa (wm-hash (car wme)))
+     ;;(warn "FA ~a PART ~a" fa (gethash fa *wmpart*-table*))
      (setq part (gethash fa *wmpart*-table*))
      (setq z (assoc wme part))
+     ;;(warn "Z ~a" z)
+     ;;(warn "PART ~a" part)
      (or z (return nil))
      (setq timetag (cdr z))
      (cond ((and *wtrace* *in-rhs*)
@@ -601,7 +721,9 @@
      (setq *current-wm* (1- *current-wm*))
      (record-change '<=wm timetag wme)
      (match nil wme)
-     (setf (gethash fa *wmpart*-table*) (delete z part :test #'eq))
+     ;;(warn "Z ~a DELETE ~a" z (delete z part :test #'equal))
+     (setf (gethash fa *wmpart*-table*) (delete z part :test #'equal))
+     ;;(warn "NEW FA ~a" (gethash fa *wmpart*-table*))
      (setq *critical* nil))) 
 
 ;;; mapwm maps down the elements of wm, applying fn to each element
