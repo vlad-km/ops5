@@ -26,7 +26,6 @@
 ; (export '(remove write make modify crlf))
 
 ;;; External global variables
-
 (defvar *size-result-array* nil)
 (defvar *in-rhs* nil)
 (defvar *current-wm* nil)
@@ -36,7 +35,6 @@
 
 
 ;;; Internal global variables
-
 (defvar *wmpart-list* nil)
 (defvar *wm-filter* nil)
 (defvar *wm* nil)
@@ -51,9 +49,7 @@
 (defvar *rest* nil)
 (defvar *build-trace* nil)
 
-
 ;;;; Functions for RHS evaluation
-
 (defun rhs-init ()
   ;; if the size of result-array changes, change the line in i-g-v which
   ;; sets the value of *size-result-array*
@@ -66,12 +62,10 @@
   (setq *critical* nil)
   (setq *wmpart-list* nil))
 
-
 (defun eval-rhs (pname data)
   (when *ptrace*
     (let ((port (trace-file)))
-      (format port "~&~A. ~A" 
-	            *cycle-count* pname)
+      (format port "~%~A. ~A " *cycle-count* pname)
       (time-tag-print data port)))
   (let ((node (gethash pname *topnode-table*)))
     (setq *data-matched* data
@@ -102,7 +96,6 @@
 
 ;;;; RHS actions
 ;;;; Some of these can be called at the top level.
-
 (defmacro make (&body z)
   `(ops-make ',z))
 
@@ -122,6 +115,7 @@
 (defmacro default (&body z)
   `(ops-default ',z))
 
+;;; @vlad-km change write to write!
 (defmacro write! (&body z)
   `(ops-write ',z))
 
@@ -236,10 +230,8 @@
 (defmacro acceptline (&body z)
   `(ops-acceptline ',z))
 
-
 (defmacro arith (&body z)
   `(ops-arith ',z))
-
 
 (defun ops-make (z)
   ($reset)
@@ -261,29 +253,31 @@
      (go top))) 
 
 ;;; bug:
+;;; (p nnn
+;;;   (stamp ^id 1)
+;;;    -->
+;;;    (modify 1 ^id 2))  => new literalize (^id 2)
+;;;
+#+nil
 (defun ops-modify (z)
   (prog (old)
      (cond ((not *in-rhs*)
 	          (%warn '|cannot be called at top level| 'modify)
 	          (return nil)))
      (setq old (get-ce-var-bind (car z)))
-     ;;(warn "OLD ~a" old)
      (cond ((null old)
 	          (%warn '|modify: first argument must be an element variable|
 		               (car z))
 	          (return nil)))
      (remove-from-wm old)
-     ;;(warn "Z AFTER REMOVE ~a" z)
      (setq z (cdr z))
      ($reset)
    copy
      (and (atom old) (go fin))
      ($change (car old))
-     ;;(warn "CHANGE OLD ~a" old)
      (setq old (cdr old))
      (go copy)
    fin
-     ;;(warn "FIN ~a ~a" old z)
      (eval-args z)
      ($assert)))
 
@@ -293,25 +287,22 @@
 	          (%warn '|cannot be called at top level| 'modify)
 	          (return nil)))
      (setq old (get-ce-var-bind (car z)))
-     ;;(warn "OLD ~a" old)
      (cond ((null old)
 	          (%warn '|modify: first argument must be an element variable|
 		               (car z))
 	          (return nil)))
      (remove-from-wm old)
-     ;;(warn "Z AFTER REMOVE ~a" z)
      (setq z (cdr z))
      ($reset)
      (go fin)
    copy
      (and (atom old) (go fin))
      ($change (car old))
-     ;;(warn "CHANGE OLD ~a" old)
      (setq old (cdr old))
      (go copy)
    fin
+     ;; @vlad-km added literalize name from remove sentence
      (push (car old) z)
-     ;;(warn "FIN ~a ~a" old z)
      (eval-args z)
      ($assert))) 
 
