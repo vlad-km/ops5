@@ -365,6 +365,7 @@
 (defun ops-arith (z) ($value (ari z))) 
 
 ;;; Should change the division in this function to use / instead of floor
+;;; todo: note: what is it?
 (defun ari (x)
   (cond ((atom x)
 	       (%warn '|bad syntax in arithmetic expression | x)
@@ -372,7 +373,7 @@
 	      ((atom (cdr x)) (ari-unit (car x)))
 	      ((eq (cadr x) '+)
 	       (+ (ari-unit (car x)) (ari (cddr x))))
-                                        ;"plus" changed to "+" by gdw
+        ;;"plus" changed to "+" by gdw
 	      ((eq (cadr x) '-)
 	       (- (ari-unit (car x)) (ari (cddr x))))
 	      ((eq (cadr x) '*)
@@ -384,8 +385,8 @@
    	    ((eq (cadr x) 'quotient)
          ;; for backward compatability
 	       (floor (ari-unit (car x)) (ari (cddr x))))
-                                        ;@@@ kluge only works for integers
-                                        ;@@@ changed to floor by jcp (from round)
+        ;;@@@ kluge only works for integers
+        ;;@@@ changed to floor by jcp (from round)
 	      ((eq (cadr x) '\\)
 	       (mod (floor (ari-unit (car x))) (floor (ari (cddr x)))))
 	      (t (%warn '|bad syntax in arithmetic expression | x) 0.))) 
