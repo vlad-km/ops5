@@ -16,6 +16,12 @@
 ;;; authors or by Carnegie-Mellon University.
 ;;;
 
+;;; bug: @vlad-km
+;;;   (terpri port)
+;;; current JSCL release dont support &optional stream
+;;; todo:
+;;;   (defun terpri (&optional port) ...)
+
 ;;;; This file contains all the functions necessary for RHS actions
 ;;;; including $actions.
 
