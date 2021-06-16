@@ -391,6 +391,7 @@
 	       (mod (floor (ari-unit (car x))) (floor (ari (cddr x)))))
 	      (t (%warn '|bad syntax in arithmetic expression | x) 0.))) 
 
+;;; todo: note: (let)
 (defun ari-unit (a)
   (prog (r)
      (cond ((consp  a) (setq r (ari a))) ;dtpr\consp gdw
