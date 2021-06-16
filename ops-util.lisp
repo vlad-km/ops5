@@ -1,3 +1,5 @@
+;;; -*- mode:lisp; coding:utf-8 -*-
+
 ;;; ****************************************************************
 ;;; OPS5 Interpreter ***********************************************
 ;;; ****************************************************************
@@ -48,13 +50,21 @@
 
 ;;; Functions that were revised so that they would compile efficiently
 (eval-when (compile eval load)
-
+  ;; Because... @vlad-km
+  #+nil
   (defmacro == (x y)
     ;; Skef Wholey - The = function in Common Lisp will compile into good code
     ;; (in all implementations that I know of) when given the right declarations.
     ;; In this case, we know both numbers are fixnums, so we use that 
     ;; information.
     `(= (the fixnum ,x) (the fixnum ,y)))
+
+  (defmacro == (x y)
+    ;; Skef Wholey - The = function in Common Lisp will compile into good code
+    ;; (in all implementations that I know of) when given the right declarations.
+    ;; In this case, we know both numbers are fixnums, so we use that 
+    ;; information.
+    `(= ,x  ,y))
 
   (defmacro =alg (a b)
     ;; =ALG returns T if A and B are algebraically equal.
@@ -68,16 +78,13 @@
   ) ;eval-when
  
 
-; The loops in gelm were unwound so that fewer calls on DIFFERENCE
-; would be needed
-
+;;; The loops in gelm were unwound so that fewer calls on DIFFERENCE
+;;; would be needed
+;;; note: todo: @vlad-km
 (defun gelm (x k)
-                                        ; (locally) 				;@@@ locally isn't implemented yet
-  ;;(declare (optimize speed))
   (prog (ce sub)
      (setq ce (truncate  k 10000.))     ;use multiple-value-setq???
      (setq sub (- k (* ce 10000.)))     ;@@@ ^
-    
    celoop
      (and (eq ce 0.) (go ph2))
      (setq x (cdr x))
@@ -112,11 +119,11 @@
      (and (eq sub 8.) (go finis))
      (setq sub (- sub 8.))
      (go subloop)
-   finis (return (car x))) ) ;  )  	;end prog,< locally >, defun
+   finis
+     (return (car x))) )
 
 (defun %warn (what where)
-  (format t "~% [~A]..~A..~A"  *p-name* where what))
-;;  where) 
+  (format t "~% [~A]..~A..~A~%"  *p-name* where what))
 
 (defun %error (what where)
   (%warn what where)

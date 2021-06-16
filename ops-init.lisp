@@ -1,3 +1,5 @@
+;;; -*- mode:lisp; coding:utf-8 -*-
+
 ;;; ****************************************************************
 ;;; OPS5 Interpreter ***********************************************
 ;;; ****************************************************************
@@ -49,7 +51,7 @@
   ;; Tell the user what we're doing.
   (format t "~&Resetting OPS5 interpreter: ~
              ~&   deleting productions, working memory, etc.")
-  #+nil(remove *)
+  (remove! *)
   (ops-init)
   (clear-ops-hash-tables)
   ;; (i-g-v)
