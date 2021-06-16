@@ -290,13 +290,12 @@
 (defun ops-modify (z)
   (prog (old)
      (cond ((not *in-rhs*)
-	          (%warn '|cannot be called at top level| 'modify)
-	          (return nil)))
+            (%warn '|cannot be called at top level| 'modify)
+            (return nil)))
      (setq old (get-ce-var-bind (car z)))
      (cond ((null old)
-	          (%warn '|modify: first argument must be an element variable|
-		               (car z))
-	          (return nil)))
+            (%warn '|modify: first argument must be an element variable| (car z))
+            (return nil)))
      (remove-from-wm old)
      (setq z (cdr z))
      ($reset)
@@ -316,30 +315,30 @@
 (defun ops-bind (z)
   (prog (val)
      (cond ((not *in-rhs*)
-	          (%warn '|cannot be called at top level| 'bind)
-	          (return nil)))
+            (%warn '|cannot be called at top level| 'bind)
+            (return nil)))
      (cond ((< (length z) 1.)
-	          (%warn '|bind: wrong number of arguments to| z)
-	          (return nil))
-	         ((not (symbolp (car z)))
-	          (%warn '|bind: illegal argument| (car z))
-	          (return nil))
-	         ((= (length z) 1.) (setq val (gensym)))
-	         (t ($reset)
-	            (eval-args (cdr z))
-	            (setq val ($parameter 1.))))
+            (%warn '|bind: wrong number of arguments to| z)
+            (return nil))
+           ((not (symbolp (car z)))
+            (%warn '|bind: illegal argument| (car z))
+            (return nil))
+           ((= (length z) 1.) (setq val (gensym)))
+           (t ($reset)
+              (eval-args (cdr z))
+              (setq val ($parameter 1.))))
      (make-var-bind (car z) val))) 
 
 (defun ops-cbind (z)
   (cond ((not *in-rhs*)
-	       (%warn '|cannot be called at top level| 'cbind))
-	      ((not (= (length z) 1.))
-	       (%warn '|cbind: wrong number of arguments| z))
-	      ((not (symbolp (car z)))
-	       (%warn '|cbind: illegal argument| (car z)))
-	      ((null *last*)
-	       (%warn '|cbind: nothing added yet| (car z)))
-	      (t (make-ce-var-bind (car z) *last*)))) 
+       (%warn '|cannot be called at top level| 'cbind))
+      ((not (= (length z) 1.))
+       (%warn '|cbind: wrong number of arguments| z))
+      ((not (symbolp (car z)))
+       (%warn '|cbind: illegal argument| (car z)))
+      ((null *last*)
+       (%warn '|cbind: nothing added yet| (car z)))
+      (t (make-ce-var-bind (car z) *last*)))) 
 
 
 (defun ops-call (z)
@@ -351,14 +350,14 @@
 
 (defun halt () 
   (cond ((not *in-rhs*)
-	       (%warn '|cannot be called at top level| 'halt))
-	      (t (setq *halt-flag* t)))) 
+         (%warn '|cannot be called at top level| 'halt))
+        (t (setq *halt-flag* t)))) 
 
 (defun ops-build (z)
   (prog (r)
      (cond ((not *in-rhs*)
-	          (%warn '|cannot be called at top level| 'build)
-	          (return nil)))
+            (%warn '|cannot be called at top level| 'build)
+            (return nil)))
      ($reset)
      (build-collect z)
      (setq r (unflat (use-result-array)))
@@ -374,55 +373,53 @@
 ;;; todo: note: what is it?
 (defun ari (x)
   (cond ((atom x)
-	       (%warn '|bad syntax in arithmetic expression | x)
-	       0.)
-	      ((atom (cdr x)) (ari-unit (car x)))
-	      ((eq (cadr x) '+)
-	       (+ (ari-unit (car x)) (ari (cddr x))))
+         (%warn '|bad syntax in arithmetic expression | x)
+         0.)
+        ((atom (cdr x)) (ari-unit (car x)))
+        ((eq (cadr x) '+)
+         (+ (ari-unit (car x)) (ari (cddr x))))
         ;;"plus" changed to "+" by gdw
-	      ((eq (cadr x) '-)
-	       (- (ari-unit (car x)) (ari (cddr x))))
-	      ((eq (cadr x) '*)
-	       (* (ari-unit (car x)) (ari (cddr x))))
-	      ((eq (cadr x) '//)
+        ((eq (cadr x) '-)
+         (- (ari-unit (car x)) (ari (cddr x))))
+        ((eq (cadr x) '*)
+         (* (ari-unit (car x)) (ari (cddr x))))
+        ((eq (cadr x) '//)
          ;; was (floor (ari-unit (car x)) (ari (cddr x))) ;@@@ quotient? /
          ;; but changed to / by mk 10-15-92
-	       (/ (ari-unit (car x)) (ari (cddr x))))
-   	    ((eq (cadr x) 'quotient)
+         (/ (ari-unit (car x)) (ari (cddr x))))
+  	    ((eq (cadr x) 'quotient)
          ;; for backward compatability
-	       (floor (ari-unit (car x)) (ari (cddr x))))
+         (floor (ari-unit (car x)) (ari (cddr x))))
         ;;@@@ kluge only works for integers
         ;;@@@ changed to floor by jcp (from round)
-	      ((eq (cadr x) '\\)
-	       (mod (floor (ari-unit (car x))) (floor (ari (cddr x)))))
-	      (t (%warn '|bad syntax in arithmetic expression | x) 0.))) 
+        ((eq (cadr x) '\\)
+         (mod (floor (ari-unit (car x))) (floor (ari (cddr x)))))
+        (t (%warn '|bad syntax in arithmetic expression | x) 0.))) 
 
 ;;; todo: note: (let)
 (defun ari-unit (a)
   (prog (r)
      (cond ((consp  a) (setq r (ari a))) ;dtpr\consp gdw
-	         (t (setq r ($varbind a))))
+           (t (setq r ($varbind a))))
      (cond ((not (numberp r))
-	          (%warn '|bad value in arithmetic expression| a)
-	          (return 0.))
-	         (t (return r))))) 
+            (%warn '|bad value in arithmetic expression| a)
+            (return 0.))
+           (t (return r))))) 
 
 (defun ops-substr (l)
   (prog (k elm start end)
      (cond ((not (= (length l) 3.))
-	          (%warn '|substr: wrong number of arguments| l)
-	          (return nil)))
+            (%warn '|substr: wrong number of arguments| l)
+            (return nil)))
      (setq elm (get-ce-var-bind (car l)))
      (cond ((null elm)
-	          (%warn '|first argument to substr must be a ce var|
-		               l)
-	          (return nil)))
+            (%warn '|first argument to substr must be a ce var| l)
+            (return nil)))
      (setq start ($varbind (cadr l)))
      (setq start ($litbind start))
      (cond ((not (numberp start))
-	          (%warn '|second argument to substr must be a number|
-		               l)
-	          (return nil)))
+            (%warn '|second argument to substr must be a number| l)
+            (return nil)))
      ;;###	(comment |if a variable is bound to INF, the following|
      ;;	 |will get the binding and treat it as INF is|
      ;;	 |always treated.  that may not be good|)
@@ -430,16 +427,15 @@
      (cond ((eq end 'inf) (setq end (length elm))))
      (setq end ($litbind end))
      (cond ((not (numberp end))
-	          (%warn '|third argument to substr must be a number|
-		               l)
-	          (return nil)))
+            (%warn '|third argument to substr must be a number| l)
+            (return nil)))
      ;;###	(comment |this loop does not check for the end of elm|
      ;;         |instead it relies on cdr of nil being nil|
      ;;         |this may not work in all versions of lisp|)
      (setq k 1.)
    la
      (cond ((> k end) (return nil))
-	         ((not (< k start)) ($value (car elm))))
+           ((not (< k start)) ($value (car elm))))
      (setq elm (cdr elm))
      (setq k (1+ k))
      (go la))) 
@@ -449,16 +445,14 @@
 (defun ops-litval (z)
   (prog (r)
      (cond ((not (= (length z) 1.))
-	          (%warn '|litval: wrong number of arguments| z)
-	          ($value 0) 
-	          (return nil))
-	         ((numberp (car z)) ($value (car z)) (return nil)))
+            (%warn '|litval: wrong number of arguments| z)
+            ($value 0) 
+            (return nil))
+           ((numberp (car z)) ($value (car z)) (return nil)))
      (setq r ($litbind ($varbind (car z))))
      (cond ((numberp r) ($value r) (return nil)))
      (%warn '|litval: argument has no literal binding| (car z))
      ($value 0)))
-
-
 
 ;;;; rhs-tab implements the tab ('^') function in the rhs.  it has
 ;;; four responsibilities:
@@ -471,7 +465,6 @@
 ;;; after each use; if rhs-tab did not do this, $reset
 ;;; would be much slower.
 (defun rhs-tab (z) ($tab ($varbind z)))
-
 
 (defun time-tag-print (data port)
   (when (not (null data))
@@ -527,7 +520,7 @@
      (and (> 0. d) (return nil))
    la
      (cond ((null r) (return nil))
-	         ((> 1. d) (return (car r))))
+           ((> 1. d) (return (car r))))
      (setq d (1- d))
      (setq r (cdr r))
      (go la))) 
@@ -539,11 +532,11 @@
      (setq r (car z))
      (setq z (cdr z))
      (cond ((consp  r)                  ;dtpr\consp gdw
-	          ($value '\()
-		        (build-collect r)
-		        ($value '\)))
-	         ((eq r '\\) ($change (car z)) (setq z (cdr z)))
-	         (t ($value r)))
+            ($value '\()
+	          (build-collect r)
+	          ($value '\)))
+           ((eq r '\\) ($change (car z)) (setq z (cdr z)))
+           (t ($value r)))
      (go la))) 
 
 (defun unflat (x)
@@ -555,8 +548,8 @@
       nil
       (let ((c (pop *rest*)))
 	      (cond ((eq c '\() (cons (unflat*) (unflat*)))
-	            ((eq c '\)) nil)
-	            (t (cons c (unflat*))))))) 
+              ((eq c '\)) nil)
+              (t (cons c (unflat*))))))) 
 
 ;;;; $Functions.
 ;;;; These functions provide an interface to the result array.
@@ -566,21 +559,21 @@
 (defun $litbind (x)
   (if (symbolp x)
       (or (literal-binding-of x)
-	        x)
+          x)
       x)) 
 
 (defun $varbind (x)
   (if *in-rhs*
       ;; If we're in the RHS, lookup the binding. 
       (let ((binding (assoc x *variable-memory*)))
-	      (if binding
-	          (cdr binding)
-	          x))
+        (if binding
+            (cdr binding)
+            x))
       ;; Otherwise just return it unevaluated.
       x))
 
 (defun $change (x)
-  (if (consp  x)			;dtpr\consp gdw
+  (if (consp  x)                        ;dtpr\consp gdw
       (eval-function x)	
       ($value ($varbind x)))) 
 
@@ -611,12 +604,11 @@
 
 (defun $value (v)
   (cond ((> *next-index* *size-result-array*)
-	       (%warn '|index too large| *next-index*))
-	      (t
-	       (and (> *next-index* *max-index*)
-	            (setq *max-index* *next-index*))
-	       (setf (aref *result-array* *next-index*) v)
-	       (incf *next-index*)))) 
+         (%warn '|index too large| *next-index*))
+        (t (and (> *next-index* *max-index*)
+                (setq *max-index* *next-index*))
+           (setf (aref *result-array* *next-index*) v)
+           (incf *next-index*)))) 
 
 (defun $assert nil
   (setq *last* (use-result-array))
@@ -626,11 +618,12 @@
   *max-index*)
 
 (defun $parameter (k)
-  (cond ((or (not (numberp k)) (> k *size-result-array*) (< k 1.))
-	       (%warn '|illegal parameter number | k)
-	       nil)
-	      ((> k *max-index*) nil)
-	      (t (aref *result-array* k))))
+  (cond ((or (not (numberp k))
+             (> k *size-result-array*) (< k 1.))
+         (%warn '|illegal parameter number | k)
+         nil)
+        ((> k *max-index*) nil)
+        (t (aref *result-array* k))))
 
 (defun $ifile (x) 
   (when (symbolp x)
@@ -679,17 +672,17 @@
 	       (setq *wmpart-list* (cons fa *wmpart-list*)))
      (setq part (gethash fa *wmpart*-table*))
      (cond (override (setq timetag override))
-	         (t (setq timetag *action-count*)))
+           (t (setq timetag *action-count*)))
      (setq z (cons wme timetag))
      (setf (gethash fa *wmpart*-table*) (cons z part))
      (record-change '=>wm *action-count* wme)
      (match 'new wme)
      (setq *critical* nil)
      (cond ((and *in-rhs* *wtrace*)
-	          (setq port (trace-file))
-	          (terpri port)
-	          (princ '|=>wm: | port)
-	          (ppelm wme port))))) 
+            (setq port (trace-file))
+            (terpri port)
+            (princ '|=>wm: | port)
+            (ppelm wme port))))) 
 
 ;;; remove-from-wm uses eq, not equal to determine if wme is present
 (defun remove-from-wm (wme)
@@ -700,10 +693,10 @@
      (or z (return nil))
      (setq timetag (cdr z))
      (cond ((and *wtrace* *in-rhs*)
-	          (setq port (trace-file))
-	          (terpri port)
-	          (princ '|<=wm: | port)
-	          (ppelm wme port)))
+            (setq port (trace-file))
+            (terpri port)
+            (princ '|<=wm: | port)
+            (ppelm wme port)))
      (setq *action-count* (1+ *action-count*))
      (setq *critical* t)
      (setq *current-wm* (1- *current-wm*))
@@ -739,16 +732,16 @@
   (setq *wm-filter* z)
   (setq *wm* nil)
   (mapwm #'(lambda (elem) 
-	           (when (or (null *wm-filter*)
-		                   (member (cdr elem) *wm-filter*)) ;test #'equal
-	             (push (car elem) *wm*))))
+             (when (or (null *wm-filter*)
+                     (member (cdr elem) *wm-filter*)) ;test #'equal
+               (push (car elem) *wm*))))
   (prog2 nil *wm* (setq *wm* nil))) 
 
 (defun wm-hash (x)
   (cond ((not x) '<default>)
-	      ((not (car x)) (wm-hash (cdr x)))
-	      ((symbolp (car x)) (car x))
-	      (t (wm-hash (cdr x))))) 
+        ((not (car x)) (wm-hash (cdr x)))
+        ((symbolp (car x)) (car x))
+        (t (wm-hash (cdr x))))) 
 
 (defun refresh ()
   (setq *old-wm* nil)
