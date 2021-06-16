@@ -1,3 +1,5 @@
+;;; -*- mode:lisp; coding:utf-8 -*-
+
 ;;; ****************************************************************
 ;;; OPS5 Interpreter ***********************************************
 ;;; ****************************************************************
@@ -55,7 +57,7 @@
 (defun rhs-init ()
   ;; if the size of result-array changes, change the line in i-g-v which
   ;; sets the value of *size-result-array*
-  (setq *size-result-array* 255.)	;255 /256 set by gdw
+  (setq *size-result-array* 255.)                             ;255 /256 set by gdw
   (setq *result-array* (make-array 256 :initial-element nil)) ;jgk
   (setq *in-rhs* nil)
   (setq *build-trace* nil)
@@ -69,12 +71,12 @@
   (when *ptrace*
     (let ((port (trace-file)))
       (format port "~&~A. ~A" 
-	      *cycle-count* pname)
+	            *cycle-count* pname)
       (time-tag-print data port)))
   (let ((node (gethash pname *topnode-table*)))
     (setq *data-matched* data
-	  *p-name* pname
-	  *last* nil)
+	        *p-name* pname
+	        *last* nil)
     (init-var-mem (var-part node))
     (init-ce-var-mem (ce-var-part node))
     (begin-record pname data)
@@ -83,11 +85,9 @@
     (end-record))) 
 
 (defun eval-args (z)
-  ;;(warn "~%EVAL ARGS ~a" z)
   (prog (r)
      (rhs-tab 1.)
    la
-     ;;(warn "EVAL-ARGS LA ~a" z)
      (and (atom z) (return nil))
      (setq r (pop z))
      (when (eq r '^)
@@ -106,6 +106,7 @@
 (defmacro make (&body z)
   `(ops-make ',z))
 
+;;; @vlad-km change remove to remove!
 (defmacro remove! (&body z)
   `(ops-remove ',z))
 
