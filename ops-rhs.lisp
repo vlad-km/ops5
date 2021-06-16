@@ -454,17 +454,16 @@
 
 
 
-; rhs-tab implements the tab ('^') function in the rhs.  it has
-; four responsibilities:
-;	- to move the array pointers
-;	- to watch for tabbing off the left end of the array
-;	  (ie, to watch for pointers less than 1)
-;	- to watch for tabbing off the right end of the array
-;	- to write nil in all the slots that are skipped
-; the last is necessary if the result array is not to be cleared
-; after each use; if rhs-tab did not do this, $reset
-; would be much slower.
-
+;;;; rhs-tab implements the tab ('^') function in the rhs.  it has
+;;; four responsibilities:
+;;;	- to move the array pointers
+;;;	- to watch for tabbing off the left end of the array
+;;;	  (ie, to watch for pointers less than 1)
+;;;	- to watch for tabbing off the right end of the array
+;;;	- to write nil in all the slots that are skipped
+;;; the last is necessary if the result array is not to be cleared
+;;; after each use; if rhs-tab did not do this, $reset
+;;; would be much slower.
 (defun rhs-tab (z) ($tab ($varbind z)))
 
 
@@ -565,7 +564,6 @@
       x)) 
 
 (defun $varbind (x)
-  ;;(warn "$VARBIND ~a" x)
   (if *in-rhs*
       ;; If we're in the RHS, lookup the binding. 
       (let ((binding (assoc x *variable-memory*)))
@@ -576,7 +574,6 @@
       x))
 
 (defun $change (x)
-  ;;(warn "$CHANGE ~a" x)
   (if (consp  x)			;dtpr\consp gdw
       (eval-function x)	
       ($value ($varbind x)))) 
@@ -637,8 +634,6 @@
   (when (symbolp x) 
     (gethash x *outputfile-table*)))
 
-;;; 
-
 (defun use-result-array ()
   "Use-result-array returns the contents of the result array as a list."
   ;; is *max-index* acting like a fill-pointer? Then we can't just use
@@ -668,7 +663,6 @@
 ;;; the thing matched is not in wm at the time)
 
 (defun add-to-wm (wme override)
-  ;;(warn "ADD-TO-WM ~a ~a" wme override)
   (prog (fa z part timetag port)
      (setq *critical* t)
      (setq *current-wm* (1+ *current-wm*))
@@ -692,17 +686,11 @@
 	          (ppelm wme port))))) 
 
 ;;; remove-from-wm uses eq, not equal to determine if wme is present
-
 (defun remove-from-wm (wme)
-  ;;(warn "REMOVE-WM ~a" wme)
   (prog (fa z part timetag port)
      (setq fa (wm-hash wme))
-     ;;(setq fa (wm-hash (car wme)))
-     ;;(warn "FA ~a PART ~a" fa (gethash fa *wmpart*-table*))
      (setq part (gethash fa *wmpart*-table*))
      (setq z (assoc wme part))
-     ;;(warn "Z ~a" z)
-     ;;(warn "PART ~a" part)
      (or z (return nil))
      (setq timetag (cdr z))
      (cond ((and *wtrace* *in-rhs*)
@@ -715,14 +703,12 @@
      (setq *current-wm* (1- *current-wm*))
      (record-change '<=wm timetag wme)
      (match nil wme)
-     ;;(warn "Z ~a DELETE ~a" z (delete z part :test #'equal))
+     ;; @vlad-km - :test #'equal not #'eq
      (setf (gethash fa *wmpart*-table*) (delete z part :test #'equal))
-     ;;(warn "NEW FA ~a" (gethash fa *wmpart*-table*))
      (setq *critical* nil))) 
 
 ;;; mapwm maps down the elements of wm, applying fn to each element
 ;;; each element is of form (datum . creation-time)
-
 (defun mapwm (fn)
   (dolist (wmpl *wmpart-list*)
     (mapc fn (gethash wmpl *wmpart*-table*)))
