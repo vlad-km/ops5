@@ -1,3 +1,5 @@
+;;; -*- mode:lisp; coding:utf-8 -*-
+
 ;;; ****************************************************************
 ;;; OPS5 Interpreter ***********************************************
 ;;; ****************************************************************
@@ -197,7 +199,7 @@
 
 (defun cmp-atomic-or-any ()
   (cond ((eq (peek-sublex) '<<) (cmp-any))
-	(t (cmp-atomic))))
+	      (t (cmp-atomic))))
 
 (defun cmp-any ()
   (prog (a z)
@@ -261,9 +263,10 @@
   (or (member test '(eq ne xx))
       (%error '|non-numeric constant after numeric predicate| (sublex)))
   (link-new-node  (list  (intern
-                          (jscl::concat "T"
-                                        (symbol-name  test)
-					                              "A"))
+                          (jscl::concat
+                           "T"
+                           (symbol-name  test)
+					                 "A"))
 		                     nil
 		                     (current-field)
 		                     (sublex)))) 
@@ -440,7 +443,7 @@
      (link-new-node (list '&mem nil nil (protomem)))
      (setq rpred *last-node*)
      (cond ((eq type '&and)
-	          (setq lnode (list '&mem nil nil (protomem))))
+            (setq lnode (list '&mem nil nil (protomem))))
 	         (t (setq lnode (list '&two nil nil))))
      (setq lpred (link-to-branch lnode))
      (cond ((eq type '&and) (setq lef lpred))
@@ -575,8 +578,8 @@
 	        (cbind (check-cbind x))
 	        (make (check-make x))
 	        (modify (check-modify x))
-	        (remove (check-remove x))
-	        (write (check-write x))	
+	        (remove! (check-remove x))
+	        (write! (check-write x))	
 	        (call (check-call x))		
 	        (halt (check-halt x))
 	        (openfile (check-openfile x))
@@ -601,10 +604,10 @@
      (setq r (car args))
      (setq args (cdr args))
      (cond ((consp  r) (check-build-collect r))	;dtpr\consp gdw
-	         ((eq r '\\)
-	          (and (null args) (%warn '|nothing to evaluate| r))
-	          (check-rhs-value (car args))
-	          (setq args (cdr args))))
+           ((eq r '\\)
+            (and (null args) (%warn '|nothing to evaluate| r))
+            (check-rhs-value (car args))
+            (setq args (cdr args))))
      (go top)))
 
 (defun check-remove (z)                 ;@@@ kluge by gdw
@@ -690,19 +693,19 @@
      (setq r (car z))
      (setq z (cdr z))
      (cond ((eq r '^)
-	          (and tab-flag
-		             (%warn '|no value before this tab| (car z)))
-	          (setq tab-flag t)
-	          (check-tab-index (car z))
-	          (setq z (cdr z)))
-	         ((eq r '//) (setq tab-flag nil) (setq z (cdr z)))
-	         (t (setq tab-flag nil) (check-rhs-value r)))
+            (and tab-flag
+                 (%warn '|no value before this tab| (car z)))
+            (setq tab-flag t)
+            (check-tab-index (car z))
+            (setq z (cdr z)))
+           ((eq r '//) (setq tab-flag nil) (setq z (cdr z)))
+           (t (setq tab-flag nil) (check-rhs-value r)))
      (go la))) 
 
 (defun check-rhs-ce-var (v)
   (cond ((and (not (numberp v)) (not (ce-bound? v)))
-	       (%warn '|unbound element variable| v))
-	      ((and (numberp v) (or (< v 1.) (> v *ce-count*)))
+         (%warn '|unbound element variable| v))
+        ((and (numberp v) (or (< v 1.) (> v *ce-count*)))
 	       (%warn '|numeric element designator out of bounds| v)))) 
 
 (defun check-rhs-value (x)
@@ -733,8 +736,8 @@
 	       (%warn '"rhs function not declared external" a))))))
 
 (defun externalp (x)
-                                        ;  (cond ((symbolp x) (gethash x *external-routine-table*)) 	;) @@@
-                                        ;ok, I'm eliminating this temporarily @@@@
+  ;;  (cond ((symbolp x) (gethash x *external-routine-table*)) 	;) @@@
+  ;;ok, I'm eliminating this temporarily @@@@
   (cond ((symbolp x) t)
 	      (t (%warn '|not a legal function name| x) nil)))
 
@@ -745,8 +748,8 @@
 
 (defun check-accept (x)
   (cond ((= (length x) 1) nil)
-	((= (length x) 2) (check-rhs-atomic (cadr x)))
-	(t (%warn '|too many arguments| x))))
+	      ((= (length x) 2) (check-rhs-atomic (cadr x)))
+	      (t (%warn '|too many arguments| x))))
 
 (defun check-acceptline (x)
   (mapc #'check-rhs-atomic (cdr x)))
@@ -781,12 +784,12 @@
 
 (defun check-arithmetic (l)
   (cond ((atom l)
-	       (%warn '|syntax error in arithmetic expression| l))
-	      ((atom (cdr l)) (check-term (car l)))
+         (%warn '|syntax error in arithmetic expression| l))
+        ((atom (cdr l)) (check-term (car l)))
         ;; "plus" changed to "+" by gdw 
         ;; "quotient" added by mk, for backward compatability with the
         ;; old definition of //.
-	      ((not (member (cadr l) '(+ - * // \\ quotient)))	
+        ((not (member (cadr l) '(+ - * // \\ quotient)))	
 	       (%warn '|unknown operator| l))
 	      (t (check-term (car l)) (check-arithmetic (cddr l))))) 
 
@@ -799,25 +802,27 @@
   (or (eq x 'inf) (check-substr-index x))) 
 
 (defun check-substr-index (x)
-  (if (bound? x) x
+  (if (bound? x)
+      x
       (let ((v ($litbind x)))
-	(cond ((not (numberp v))
-	       (%warn '|unbound symbol used as index in substr| x))
-	      ((or (< v 1.) (> v 127.))
-	       (%warn '|index out of bounds in tab| x)))))) 
+	      (cond ((not (numberp v))
+	             (%warn '|unbound symbol used as index in substr| x))
+	            ((or (< v 1.) (> v 127.))
+	             (%warn '|index out of bounds in tab| x)))))) 
 
 (defun check-print-control (x)
   (cond ((bound? x) x)
-	((or (not (numberp x)) (< x 1.) (> x 127.))
-	 (%warn '|illegal value for printer control| x)))) 
+	      ((or (not (numberp x)) (< x 1.) (> x 127.))
+	       (%warn '|illegal value for printer control| x)))) 
 
 (defun check-tab-index (x)
-  (if (bound? x) x
+  (if (bound? x)
+      x
       (let ((v ($litbind x)))
-	(cond ((not (numberp v))
-	       (%warn '|unbound symbol occurs after ^| x))
-	      ((or (< v 1.) (> v 127.))
-	       (%warn '|index out of bounds after ^| x)))))) 
+	      (cond ((not (numberp v))
+	             (%warn '|unbound symbol occurs after ^| x))
+	            ((or (< v 1.) (> v 127.))
+	             (%warn '|index out of bounds after ^| x)))))) 
 
 (defun note-variable (var)
   (push var *rhs-bound-vars*))
