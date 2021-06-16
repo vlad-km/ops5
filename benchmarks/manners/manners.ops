@@ -15,7 +15,8 @@
 	(make path ^id <c> ^name <n> ^seat 1)
 	(modify 3 ^c (compute <c> + 1))
 	(write seat 1 <n> <n> 1 <c> 0 1 (crlf))
-	(modify 1 assign_seats))
+        (modify 1 assign_seats)
+	(make context assign_seats))
 
 (p find_seating
 	(context assign_seats)
@@ -31,7 +32,8 @@
 	(make chosen ^id <id> ^name <g2> ^hobby <h1>)
 	(modify 5 ^c (compute <c> + 1))
 	(write seat <seat2> <n2> <g2> (crlf))
-	(modify 1 make_path))
+        (remove 1)
+	(make context make_path))
 
 (p make_path
 	(context make_path)
@@ -46,7 +48,8 @@
 	(seating ^path_done no)
 	-->
 	(modify 2 ^path_done yes)
-	(modify 1 check_done))
+        (remove 1)
+	(make context check_done))
 
 (p are_we_done
 	(context check_done)
@@ -54,12 +57,14 @@
 	(seating ^seat2 <l_seat>)
 	-->
 	(write (crlf) Yes, we are done!! (crlf))
-	(modify 1 print_results))
+        (remove 1)
+	(make context print_results))
 
 (p continue
 	(context check_done)
 	-->
-	(modify 1 assign_seats))
+        (remove 1)
+	(make context assign_seats))
 
 (p print_results
 	(context print_results)
