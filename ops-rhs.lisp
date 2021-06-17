@@ -634,7 +634,7 @@
     (gethash x *outputfile-table*)))
 
 (defun use-result-array ()
-  "Use-result-array returns the contents of the result array as a list."
+  ;;"Use-result-array returns the contents of the result array as a list."
   ;; is *max-index* acting like a fill-pointer? Then we can't just use
   ;; coerce, unless we change *result-array* to use a fill pointer.
   ;; Also, note that index 0 of the array is ignored.
@@ -660,7 +660,6 @@
 ;;; (back will not restore state properly unless wm changes are recorded
 ;;; before the cs changes that they cause)  (match will give errors if 
 ;;; the thing matched is not in wm at the time)
-
 (defun add-to-wm (wme override)
   (prog (fa z part timetag port)
      (setq *critical* t)
