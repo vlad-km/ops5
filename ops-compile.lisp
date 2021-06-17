@@ -25,16 +25,13 @@
 
 
 ;;; External global variables
-
 (defvar *real-cnt*)
 (defvar *virtual-cnt*)
 (defvar *last-node*)
 (defvar *first-node*)
 (defvar *pcount*)
 
-
 ;;; Internal global variables
-
 (defvar *matrix*)
 (defvar *curcond*)
 (defvar *feature-count*)
@@ -48,16 +45,12 @@
 (defvar *cur-vars*)
 (defvar *action-type*)
 
-
-
 (defun compile-init ()
   (setq *real-cnt* (setq *virtual-cnt* 0.))
   (setq *pcount* 0.)
   (make-bottom-node))
 
-
 ;;; LHS Compiler
-
 (defun ops-p (z) 
   (finish-literalize)
   (princ '*) 
@@ -71,51 +64,29 @@
   (setq *p-name* name)
   (catch '!error! (cmp-p name matrix))
   (setq *p-name* nil))
-#|
-(defun compile-production (name matrix) ;jgk inverted args to catch 
-  (prog (erm)				;and quoted tag
-    (setq *p-name* name)
-    (setq erm (catch '!error! (cmp-p name matrix)))
-    (setq *p-name* nil)))
-|#
 
-(defun peek-lex ()
-  (car *matrix*)) 
-
-(defun lex ()
-  (pop *matrix*)) 
-
+(defun peek-lex () (car *matrix*)) 
+(defun lex () (pop *matrix*)) 
 (defun end-of-p () (atom *matrix*)) 
-
 (defun rest-of-p () *matrix*) 
-
 (defun prepare-lex (prod) (setq *matrix* prod)) 
-
-
 (defun peek-sublex () (car *curcond*)) 
-
-(defun sublex ()
-  (pop *curcond*)) 
-
+(defun sublex () (pop *curcond*)) 
 (defun end-of-ce () (atom *curcond*)) 
-
 (defun rest-of-ce () *curcond*) 
-
 (defun prepare-sublex (ce) (setq *curcond* ce)) 
-
-(defun make-bottom-node ()
-  (setq *first-node* (list '&bus nil))) 
+(defun make-bottom-node () (setq *first-node* (list '&bus nil))) 
 
 (defun cmp-p (name matrix)
   (prog (m bakptrs)
-     (cond ((or (null name) (consp  name)) ;dtpr\consp gdw
-	          (%error '|illegal production name| name))
-	         ((equal (gethash name *production-table*) matrix)
-	          (return nil)))
+     (cond ((or (null name) (consp  name))
+            (%error '|illegal production name| name))
+           ((equal (gethash name *production-table*) matrix)
+            (return nil)))
      (prepare-lex matrix)
      (excise-p name)
      (setq bakptrs nil)
-     (incf *pcount*)                    ;"plus" changed to "+" by gdw
+     (incf *pcount*)
      (setq *feature-count* 0.)
      (setq *ce-count* 0)
      (setq *vars* nil)
@@ -132,11 +103,11 @@
      (lex)
      (check-rhs (rest-of-p))
      (link-new-node (list '&p
-			                    *feature-count*
-			                    name
-			                    (encode-dope)
-			                    (encode-ce-dope)
-			                    (cons 'progn (rest-of-p))))
+		                      *feature-count*
+		                      name
+		                      (encode-dope)
+		                      (encode-ce-dope)
+		                      (cons 'progn (rest-of-p))))
      (setf (gethash name *backpointers-table*) (cdr (nreverse bakptrs)))
      (setf (gethash name *production-table*) matrix)
      (setf (gethash name *topnode-table*) *last-node*))) 
@@ -158,15 +129,15 @@
 (defun cmp-negce nil (lex) (cmp-ce)) 
 
 (defun cmp-posce nil
-  (setq *ce-count* (1+ *ce-count*))          ;"plus" changed to "+" by gdw
-  (cond ((eq (peek-lex) '\{) (cmp-ce+cevar)) ;"plus" changed to "+" by gdw
-	      (t (cmp-ce)))) 
+  (setq *ce-count* (1+ *ce-count*))
+  (cond ((eq (peek-lex) '\{) (cmp-ce+cevar))
+        (t (cmp-ce)))) 
 
 (defun cmp-ce+cevar ()
   (prog (z)
      (lex)
      (cond ((atom (peek-lex)) (cmp-cevar) (cmp-ce))
-	         (t (cmp-ce) (cmp-cevar)))
+           (t (cmp-ce) (cmp-cevar)))
      (setq z (lex))
      (or (eq z '\}) (%error '|missing '}'| z)))) 
 
@@ -183,7 +154,7 @@
      (setq *cur-vars* nil)
      (setq z (lex))
      (and (atom z)
-	        (%error '|atomic conditions are not allowed| z))
+          (%error '|atomic conditions are not allowed| z))
      (prepare-sublex z)
    la
      (and (end-of-ce) (return nil))
@@ -226,13 +197,13 @@
   (prog (test x)
      (setq x (peek-sublex))
      (cond ((eq x '= ) (setq test 'eq) (sublex))
-	         ((eq x '<>) (setq test 'ne) (sublex))
-	         ((eq x '<) (setq test 'lt) (sublex))
-	         ((eq x '<=) (setq test 'le) (sublex))
-	         ((eq x '>) (setq test 'gt) (sublex))
-	         ((eq x '>=) (setq test 'ge) (sublex))
-	         ((eq x '<=>) (setq test 'xx) (sublex))
-	         (t (setq test 'eq)))
+           ((eq x '<>) (setq test 'ne) (sublex))
+           ((eq x '<) (setq test 'lt) (sublex))
+           ((eq x '<=) (setq test 'le) (sublex))
+           ((eq x '>) (setq test 'gt) (sublex))
+           ((eq x '>=) (setq test 'ge) (sublex))
+           ((eq x '<=>) (setq test 'xx) (sublex))
+           (t (setq test 'eq)))
      (cmp-symbol test))) 
 
 (defun cmp-product ()
@@ -241,10 +212,10 @@
      (sublex)
    la
      (cond ((end-of-ce)
-		        (cond ((member '\} save :test #'equal) 
-		               (%error '|wrong contex for '}'| save))
-		              (t (%error '|missing '}'| save))))
-	         ((eq (peek-sublex) '\}) (sublex) (return nil)))
+            (cond ((member '\} save :test #'equal) 
+                   (%error '|wrong contex for '}'| save))
+                  (t (%error '|missing '}'| save))))
+           ((eq (peek-sublex) '\}) (sublex) (return nil)))
      (cmp-atomic-or-any)
      (go la))) 
 
@@ -254,32 +225,26 @@
       (sublex)
       (setq flag nil))
     (cond ((and flag (variablep (peek-sublex)))
-	         (cmp-var test))
-	        ((numberp (peek-sublex)) (cmp-number test))
-	        ((symbolp (peek-sublex)) (cmp-constant test))
-	        (t (%error '|unrecognized symbol| (sublex)))))) 
+           (cmp-var test))
+          ((numberp (peek-sublex)) (cmp-number test))
+          ((symbolp (peek-sublex)) (cmp-constant test))
+          (t (%error '|unrecognized symbol| (sublex)))))) 
 
-(defun cmp-constant (test)              ;jgk inserted concatenate form
+(defun cmp-constant (test) ;;jgk inserted concatenate form
   (or (member test '(eq ne xx))
       (%error '|non-numeric constant after numeric predicate| (sublex)))
-  (link-new-node  (list  (intern
-                          (jscl::concat
-                           "T"
-                           (symbol-name  test)
-					                 "A"))
-		                     nil
-		                     (current-field)
-		                     (sublex)))) 
+  (link-new-node  (list
+                   (intern (jscl::concat "T" (symbol-name  test) "A"))
+		               nil
+		               (current-field)
+		               (sublex)))) 
 
-(defun cmp-number (test)                ;jgk inserted concatenate form
-  (link-new-node (list (intern (jscl::concat
-					                      "T"
-					                      (symbol-name  test)
-                                ;;@@@ error? reported by laird fix\	    "A"
-					                      "N"))
-		                   nil
-		                   (current-field)
-		                   (sublex)))) 
+(defun cmp-number (test) ;;jgk inserted concatenate form
+  (link-new-node (list
+                  (intern (jscl::concat "T" (symbol-name  test) "N"))
+		              nil
+		              (current-field)
+		              (sublex)))) 
 
 (defun current-field () (field-name *subnum*)) 
 
@@ -303,29 +268,27 @@
       (%error '|condition is too long| (rest-of-ce))))
 
 ;;; Compiling variables
-;
-;
-;
-; *cur-vars* are the variables in the condition element currently 
-; being compiled.  *vars* are the variables in the earlier condition
-; elements.  *ce-vars* are the condition element variables.  note
-; that the interpreter will not confuse condition element and regular
-; variables even if they have the same name.
-;
-; *cur-vars* is a list of triples: (name predicate subelement-number)
-; eg:		( (<x> eq 3)
-;		  (<y> ne 1)
-;		  . . . )
-;
-; *vars* is a list of triples: (name ce-number subelement-number)
-; eg:		( (<x> 3 3)
-;		  (<y> 1 1)
-;		  . . . )
-;
-; *ce-vars* is a list of pairs: (name ce-number)
-; eg:		( (ce1 1)
-;		  (<c3> 3)
-;		  . . . )
+;;;
+;;; *cur-vars* are the variables in the condition element currently 
+;;; being compiled.  *vars* are the variables in the earlier condition
+;;; elements.  *ce-vars* are the condition element variables.  note
+;;; that the interpreter will not confuse condition element and regular
+;;; variables even if they have the same name.
+;;;
+;;; *cur-vars* is a list of triples: (name predicate subelement-number)
+;;; eg:		( (<x> eq 3)
+;;;		  (<y> ne 1)
+;;;		  . . . )
+;;;
+;;; *vars* is a list of triples: (name ce-number subelement-number)
+;;; eg:		( (<x> 3 3)
+;;;		  (<y> 1 1)
+;;;		  . . . )
+;;;
+;;; *ce-vars* is a list of pairs: (name ce-number)
+;;; eg:		( (ce1 1)
+;;;		  (<c3> 3)
+;;;		  . . . )
 
 ;;; used only in this file.
 (defmacro var-dope (var) `(assoc ,var *vars*))
@@ -336,45 +299,40 @@
   (let* ((name (sublex))
 	       (old (assoc name *cur-vars*)))
     (cond ((and old (eq (cadr old) 'eq))
-	         (cmp-old-eq-var test old))
-	        ((and old (eq test 'eq)) (cmp-new-eq-var name old))
-	        (t (cmp-new-var name test))))) 
+           (cmp-old-eq-var test old))
+          ((and old (eq test 'eq)) (cmp-new-eq-var name old))
+          (t (cmp-new-var name test))))) 
 
 (defun cmp-new-var (name test)
   (push (list name test *subnum*) 
-	      *cur-vars*)) 
+        *cur-vars*)) 
 
-(defun cmp-old-eq-var (test old)        ; jgk inserted concatenate form
-  (link-new-node (list (intern (jscl::concat
-					                      "T"
-					                      (symbol-name  test)
-					                      "S"))
-		                   nil
-		                   (current-field)
-		                   (field-name (caddr old))))) 
+(defun cmp-old-eq-var (test old) ;; jgk inserted concatenate form
+  (link-new-node (list
+                  (intern (jscl::concat "T" (symbol-name  test) "S"))
+	                nil
+	                (current-field)
+	                (field-name (caddr old))))) 
 
-(defun cmp-new-eq-var (name old)        ;jgk inserted concatenate form
+(defun cmp-new-eq-var (name old) ;;jgk inserted concatenate form
   (prog (pred next)
      (setq *cur-vars* (delete old *cur-vars* :test #'eq))
      (setq next (assoc name *cur-vars*))
      (cond (next (cmp-new-eq-var name next))
-	         (t (cmp-new-var name 'eq)))
+           (t (cmp-new-var name 'eq)))
      (setq pred (cadr old))
-     (link-new-node (list (intern (jscl::concat
-					                         "T"
-					                         (symbol-name  pred)
-					                         "S"))
-			                    nil
-			                    (field-name (caddr old))
-			                    (current-field))))) 
+     (link-new-node (list
+                     (intern (jscl::concat "T" (symbol-name  pred) "S"))
+	                   nil
+	                   (field-name (caddr old))
+	                   (current-field)))))
 
 (defun cmp-cevar nil
   (let* ((name (lex))
-	       (old (assoc name *ce-vars*)))
+         (old (assoc name *ce-vars*)))
     (when old
       (%error '|condition element variable used twice| name))
-    (push (list name 0.) 
-	        *ce-vars*))) 
+    (push (list name 0.) *ce-vars*))) 
 
 (defun cmp-not nil (cmp-beta '&not)) 
 
@@ -394,28 +352,26 @@
      ;;  (setq vpos (caddr vdope))
      (setq old (assoc vname *vars*))
      (cond (old (setq tlist (add-test tlist vdope old)))
-	         ((not (eq kind '&not)) (promote-var vdope)))
+           ((not (eq kind '&not)) (promote-var vdope)))
      (go la)
    lb
      (and kind (build-beta kind tlist))
      (or (eq kind '&not) (fudge))
      (setq *last-branch* *last-node*))) 
 
-(defun add-test (list new old)          ; jgk inserted concatenate form
+(defun add-test (list new old) ;; jgk inserted concatenate form
   (prog (ttype lloc rloc)
      (incf *feature-count*)
-     (setq ttype (intern (jscl::concat "T"
-				                               (symbol-name (cadr new))
-				                               "B")))
+     (setq ttype
+           (intern (jscl::concat "T" (symbol-name (cadr new)) "B")))
      (setq rloc (encode-singleton (caddr new)))
      (setq lloc (encode-pair (cadr old) (caddr old)))
      (return (cons ttype (cons lloc (cons rloc list)))))) 
 
-; the following two functions encode indices so that gelm can
-; decode them as fast as possible
-
+;;; the following two functions encode indices so that gelm can
+;;; decode them as fast as possible
+;;; @vlad-km - ??? todo: what is ???
 (defun encode-pair (a b) (+ (* 10000. (1- a)) (1- b))) 
-;"plus" changed to "+" by gdw
 
 (defun encode-singleton (a) (1- a)) 
 
@@ -425,8 +381,8 @@
      (setq vpred (cadr dope))
      (setq vpos (caddr dope))
      (or (eq 'eq vpred)
-	       (%error '|illegal predicate for first occurrence|
-		             (list vname vpred)))
+         (%error '|illegal predicate for first occurrence|
+	               (list vname vpred)))
      (setq new (list vname 0. vpos))
      (setq *vars* (cons new *vars*)))) 
 
@@ -444,10 +400,10 @@
      (setq rpred *last-node*)
      (cond ((eq type '&and)
             (setq lnode (list '&mem nil nil (protomem))))
-	         (t (setq lnode (list '&two nil nil))))
+           (t (setq lnode (list '&two nil nil))))
      (setq lpred (link-to-branch lnode))
      (cond ((eq type '&and) (setq lef lpred))
-	         (t (setq lef (protomem))))
+           (t (setq lef (protomem))))
      (link-new-beta-node (list type nil lef rpred tests)))) 
 
 (defun protomem nil (list nil)) 
@@ -478,12 +434,10 @@
      (setq r (cons (car z) (cons k r)))
      (go la))) 
 
-
 ;;; Linking the nodes
-
 (defun link-new-node (r)
   (cond ((not (member (car r) '(&p &mem &two &and &not) :test #'equal))
-	       (setq *feature-count* (1+ *feature-count*))))
+         (setq *feature-count* (1+ *feature-count*))))
   (setq *virtual-cnt* (1+ *virtual-cnt*))
   (setq *last-node* (link-left *last-node* r))) 
 
@@ -530,7 +484,7 @@
      (setq a list)
    l1
      (cond ((atom a) (return nil))
-	         ((equiv node (car a)) (return (car a))))
+           ((equiv node (car a)) (return (car a))))
      (setq a (cdr a))
      (go l1))) 
 
@@ -539,18 +493,17 @@
      (setq a list)
    l1
      (cond ((atom a) (return nil))
-	         ((beta-equiv node (car a)) (return (car a))))
+           ((beta-equiv node (car a)) (return (car a))))
      (setq a (cdr a))
      (go l1))) 
 
-; do not look at the predecessor fields of beta nodes; they have to be
-; identical because of the way the candidate nodes were found
-
+;;; do not look at the predecessor fields of beta nodes; they have to be
+;;; identical because of the way the candidate nodes were found
 (defun equiv (a b)
   (and (eq (car a) (car b))
        (or (eq (car a) '&mem)
-	         (eq (car a) '&two)
-	         (equal (caddr a) (caddr b)))
+           (eq (car a) '&two)
+           (equal (caddr a) (caddr b)))
        (equal (cdddr a) (cdddr b)))) 
 
 (defun beta-equiv (a b)
@@ -558,39 +511,34 @@
        (equal (cddddr a) (cddddr b))
        (or (eq (car a) '&and) (equal (caddr a) (caddr b))))) 
 
-; the equivalence tests are set up to consider the contents of
-; node memories, so they are ready for the build action
-
-
+;;; the equivalence tests are set up to consider the contents of
+;;; node memories, so they are ready for the build action
 
 ;;; Check the RHSs of productions 
-
-
 (defun check-rhs (rhs) (mapc #'check-action rhs))
 
 (defun check-action (x)
   (if (atom x)
       (%warn '|atomic action| x)
       (let ((a (car x)))
-	      (setq *action-type* a)
-	      (case a
-	        (bind (check-bind x))
-	        (cbind (check-cbind x))
-	        (make (check-make x))
-	        (modify (check-modify x))
-	        (remove! (check-remove x))
-	        (write! (check-write x))	
-	        (call (check-call x))		
-	        (halt (check-halt x))
-	        (openfile (check-openfile x))
-	        (closefile (check-closefile x))
-	        (default (check-default x))
-	        (build (check-build x))
-	        (t (%warn '|undefined rhs action| a))))))
+        (setq *action-type* a)
+        (case a
+          (bind (check-bind x))
+          (cbind (check-cbind x))
+          (make (check-make x))
+          (modify (check-modify x))
+          (remove! (check-remove x))
+          (write! (check-write x))	
+          (call (check-call x))		
+          (halt (check-halt x))
+          (openfile (check-openfile x))
+          (closefile (check-closefile x))
+          (default (check-default x))
+          (build (check-build x))
+          (t (%warn '|undefined rhs action| a))))))
 
-
-;(defun chg-to-write (x)
-;	(setq x (cons 'write (cdr x))))
+;;;(defun chg-to-write (x)
+;;;	(setq x (cons 'write (cdr x))))
 
 (defun check-build (z)
   (when (null (cdr z))
@@ -603,14 +551,14 @@
      (and (null args) (return nil))
      (setq r (car args))
      (setq args (cdr args))
-     (cond ((consp  r) (check-build-collect r))	;dtpr\consp gdw
+     (cond ((consp  r) (check-build-collect r))
            ((eq r '\\)
             (and (null args) (%warn '|nothing to evaluate| r))
             (check-rhs-value (car args))
             (setq args (cdr args))))
      (go top)))
 
-(defun check-remove (z)                 ;@@@ kluge by gdw
+(defun check-remove (z) 
   (when (null (cdr z))
     (%warn '|needs arguments| z))
   (mapc (function check-rhs-ce-var) (cdr z))) 
@@ -647,7 +595,7 @@
     (%warn '|no changes to make| z))
   (check-change& (cddr z))) 
 
-(defun check-write (z)				;note this works w/write
+(defun check-write (z) ;;note this works w/write
   (when (null (cdr z))
     (%warn '|needs arguments| z))
   (check-change& (cdr z))) 
@@ -709,7 +657,7 @@
 	       (%warn '|numeric element designator out of bounds| v)))) 
 
 (defun check-rhs-value (x)
-  (if (consp x)                         ;dtpr\consp gdw 
+  (if (consp x)
       (check-rhs-function x)
       (check-rhs-atomic x))) 
 
@@ -739,7 +687,7 @@
   ;;  (cond ((symbolp x) (gethash x *external-routine-table*)) 	;) @@@
   ;;ok, I'm eliminating this temporarily @@@@
   (cond ((symbolp x) t)
-	      (t (%warn '|not a legal function name| x) nil)))
+        (t (%warn '|not a legal function name| x) nil)))
 
 (defun check-litval (x) 
   (unless (= (length x) 2)
@@ -748,8 +696,8 @@
 
 (defun check-accept (x)
   (cond ((= (length x) 1) nil)
-	      ((= (length x) 2) (check-rhs-atomic (cadr x)))
-	      (t (%warn '|too many arguments| x))))
+        ((= (length x) 2) (check-rhs-atomic (cadr x)))
+        (t (%warn '|too many arguments| x))))
 
 (defun check-acceptline (x)
   (mapc #'check-rhs-atomic (cdr x)))
@@ -794,7 +742,7 @@
 	      (t (check-term (car l)) (check-arithmetic (cddr l))))) 
 
 (defun check-term (x)
-  (if (consp x)				;dtpr\consp gdw
+  (if (consp x)
       (check-arithmetic x)
       (check-rhs-atomic x))) 
 
@@ -805,24 +753,24 @@
   (if (bound? x)
       x
       (let ((v ($litbind x)))
-	      (cond ((not (numberp v))
-	             (%warn '|unbound symbol used as index in substr| x))
-	            ((or (< v 1.) (> v 127.))
-	             (%warn '|index out of bounds in tab| x)))))) 
+        (cond ((not (numberp v))
+               (%warn '|unbound symbol used as index in substr| x))
+              ((or (< v 1.) (> v 127.))
+               (%warn '|index out of bounds in tab| x)))))) 
 
 (defun check-print-control (x)
   (cond ((bound? x) x)
-	      ((or (not (numberp x)) (< x 1.) (> x 127.))
-	       (%warn '|illegal value for printer control| x)))) 
+        ((or (not (numberp x)) (< x 1.) (> x 127.))
+         (%warn '|illegal value for printer control| x)))) 
 
 (defun check-tab-index (x)
   (if (bound? x)
       x
       (let ((v ($litbind x)))
-	      (cond ((not (numberp v))
-	             (%warn '|unbound symbol occurs after ^| x))
-	            ((or (< v 1.) (> v 127.))
-	             (%warn '|index out of bounds after ^| x)))))) 
+        (cond ((not (numberp v))
+               (%warn '|unbound symbol occurs after ^| x))
+              ((or (< v 1.) (> v 127.))
+               (%warn '|index out of bounds after ^| x)))))) 
 
 (defun note-variable (var)
   (push var *rhs-bound-vars*))
