@@ -710,15 +710,7 @@
 ;;; each element is of form (datum . creation-time)
 (defun mapwm (fn)
   (dolist (wmpl *wmpart-list*)
-    (mapc fn (gethash wmpl *wmpart*-table*)))
-  #|(prog (wmpl part)
-  (setq wmpl *wmpart-list*)             ;
-  lab1 (cond ((atom wmpl) (return nil))) ;
-  (setq part (gethash (car wmpl) *wmpart*-table*)) ;
-  (setq wmpl (cdr wmpl))                ;
-  (mapc fn part)                        ;
-  (go lab1))|#
-  ) 
+    (mapc fn (gethash wmpl *wmpart*-table*))))
 
 (defun ops-wm (a) 
   (mapc #'(lambda (z) (terpri) (ppelm z *standard-output*)) 
