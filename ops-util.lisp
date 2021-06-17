@@ -127,7 +127,7 @@
 
 (defun %error (what where)
   (%warn what where)
-  (throw '!error! '!error!)) 	;jgk quoted arguments
+  (throw '!error! '!error!))
 
 (defun top-levels-eq (la lb)
   (do ((sublist-a la (cdr sublist-a))
@@ -137,18 +137,8 @@
     (when (or (null sublist-a)
 	            (null sublist-b)
 	            (not (eq (car sublist-a) (car sublist-b))))
-      (return nil)))
-  #|(prog nil
-  lx   (cond ((eq la lb) (return t))    ;
-	((null la) (return nil))              ;
-	((null lb) (return nil))              ;
-	((not (eq (car la) (car lb))) (return nil))) ;
-  (setq la (cdr la))                    ;
-  (setq lb (cdr lb))                    ;
-  (go lx))|#
-  ) 
+      (return nil))))
 
-;@@@ revision suggested by sf/inc. by gdw
 (defun variablep (x)
   (and (symbolp x)
        (char= (char (symbol-name x) 0) #\< )))
