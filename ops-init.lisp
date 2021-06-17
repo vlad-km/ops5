@@ -24,33 +24,16 @@
 (defparameter *ops-version* "19-OCT-92")
 
 (defun ops-init ()
-  ;; Allows ^ , { , and } operators to be right next to another symbol.
-  #+nil
-  (progn
-    (set-macro-character #\{ #'(lambda (s c)
-			                           (declare (ignore s c))
-			                           '\{))
-    (set-macro-character #\} #'(lambda (s c)
-			                           (declare (ignore s c))
-			                           '\}))
-    (set-macro-character #\^ #'(lambda (s c)
-			                           (declare (ignore s c))
-			                           '\^)))
   (backup-init)
   (compile-init)
   (main-init)
   (match-init)
   (io-init)
   (rhs-init)
-  (format t "~&Common Lisp OPS5 interpreter, version ~A.~&"
-	        *ops-version*))
+  (format t "~%Common Lisp OPS5 interpreter, version ~A.~%" *ops-version*))
 
 (defun reset-ops ()
-  "Clears the state of OPS to allow a new rule set to be loaded."
-
-  ;; Tell the user what we're doing.
-  (format t "~&Resetting OPS5 interpreter: ~
-             ~&   deleting productions, working memory, etc.")
+  (format t "~%Resetting OPS5 interpreter ~%")
   (remove! *)
   (ops-init)
   (clear-ops-hash-tables)
