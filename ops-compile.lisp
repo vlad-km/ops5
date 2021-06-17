@@ -235,16 +235,16 @@
       (%error '|non-numeric constant after numeric predicate| (sublex)))
   (link-new-node  (list
                    (intern (jscl::concat "T" (symbol-name  test) "A"))
-		               nil
-		               (current-field)
-		               (sublex)))) 
+	                 nil
+	                 (current-field)
+	                 (sublex)))) 
 
 (defun cmp-number (test) ;;jgk inserted concatenate form
   (link-new-node (list
                   (intern (jscl::concat "T" (symbol-name  test) "N"))
-		              nil
-		              (current-field)
-		              (sublex)))) 
+	                nil
+	                (current-field)
+	                (sublex)))) 
 
 (defun current-field () (field-name *subnum*)) 
 
