@@ -743,6 +743,7 @@
         ((symbolp (car x)) (car x))
         (t (wm-hash (cdr x))))) 
 
+;;; @vlad-km note: Where is used?
 (defun refresh ()
   (setq *old-wm* nil)
   (mapwm #'refresh-collect)
@@ -750,8 +751,7 @@
   (mapc #'refresh-add *old-wm*)
   (setq *old-wm* nil)) 
 
-(defun refresh-collect (x)
-  (push x *old-wm*)) 
+(defun refresh-collect (x) (push x *old-wm*)) 
 
 (defun refresh-del (x) (remove-from-wm (car x))) 
 
