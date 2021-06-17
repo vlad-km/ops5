@@ -728,6 +728,7 @@
 (defun creation-time (wme)
   (cdr (assoc wme (gethash (wm-hash wme) *wmpart*-table*)))) 
 
+;;; @vlad-km note: check member
 (defun get-wm (z)
   (setq *wm-filter* z)
   (setq *wm* nil)
