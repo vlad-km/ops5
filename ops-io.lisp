@@ -24,33 +24,25 @@
 
 
 ;;; Internal global variables.
-
 (defvar *write-file*)
 (defvar *trace-file*)
 (defvar *accept-file*)
 (defvar *ppline*)
 (defvar *filters*)
 
-
-
 ;;; Initialization
-
 (defun io-init ()
   (setq *write-file* nil)
   (setq *trace-file* nil)
   (setq *accept-file* nil))
 
-
-
 ;;; User I/O commands
 ;;; Dario Giuse - rewrote the (write) function to follow OPS-5 specifications.
 ;;; Michael Huhns fixed a few bugs in this rewrttien functions some years later.
 
-
 ;;; used only in this file.
 (defmacro append-string (x)
   `(setq wrstring (jscl::concat wrstring ,x)))
-
 
 (defun ops-write (z)
   (if (not *in-rhs*)
@@ -313,34 +305,35 @@
 
 
 ;;; Printing WM
-
 (defun ops-ppwm (avlist)
   (prog (next a)
-    (setq *filters* nil)
-    (setq next 1.)
-    loop   (and (atom avlist) (go print))
-    (setq a (car avlist))
-    (setq avlist (cdr avlist))
-    ;this must be expecting (ppwm class ^ attr ^ attr2 ...) not ^attr
-    (cond ((eq a '^)
-	   (setq next (car avlist))
-	   (setq avlist (cdr avlist))
-	   (setq next ($litbind next))
-	   (and (floatp next) (setq next (floor next)))
-	   (cond ((or (not (numberp next))
-		      (> next *size-result-array*)
-		      (> 1. next))
-		  (%warn '|illegal index after ^| next)
-		  (return nil))))
-	  ((variablep a)
-	   (%warn '|ppwm does not take variables| a)
-	   (return nil))
-	  (t (setq *filters* (cons next (cons a *filters*)))
-	     (setq next (1+ next))))
-    (go loop)
-    print (mapwm #'ppwm2)
-    (terpri)
-    (return nil))) 
+     (setq *filters* nil)
+     (setq next 1.)
+   loop
+     (and (atom avlist) (go print))
+     (setq a (car avlist))
+     (setq avlist (cdr avlist))
+     ;;this must be expecting (ppwm class ^ attr ^ attr2 ...) not ^attr
+     (cond ((eq a '^)
+            (setq next (car avlist))
+            (setq avlist (cdr avlist))
+            (setq next ($litbind next))
+            (and (floatp next) (setq next (floor next)))
+            (cond ((or (not (numberp next))
+	                     (> next *size-result-array*)
+	                     (> 1. next))
+	                 (%warn '|illegal index after ^| next)
+	                 (return nil))))
+           ((variablep a)
+            (%warn '|ppwm does not take variables| a)
+            (return nil))
+           (t (setq *filters* (cons next (cons a *filters*)))
+              (setq next (1+ next))))
+     (go loop)
+   print
+     (mapwm #'ppwm2)
+     (terpri)
+     (return nil))) 
 
 
 (defun default-write-file ()
@@ -367,167 +360,158 @@
 
 (defun filter (elm)
   (prog (fl indx val)
-    (setq fl *filters*)
-    top  (and (atom fl) (return t))
-    (setq indx (car fl))
-    (setq val (cadr fl))
-    (setq fl (cddr fl))
-    (and (ident (nth (1- indx) elm) val) (go top))
-    (return nil))) 
+     (setq fl *filters*)
+   top
+     (and (atom fl) (return t))
+     (setq indx (car fl))
+     (setq val (cadr fl))
+     (setq fl (cddr fl))
+     (and (ident (nth (1- indx) elm) val) (go top))
+     (return nil))) 
 
 (defun ident (x y)
   (cond ((eq x y) t)
-	((not (numberp x)) nil)
-	((not (numberp y)) nil)
-	((=alg x y) t)
-	(t nil))) 
+        ((not (numberp x)) nil)
+        ((not (numberp y)) nil)
+        ((=alg x y) t)
+        (t nil))) 
 
-; the new ppelm is designed especially to handle literalize format
-; however, it will do as well as the old ppelm on other formats
-
+;;; the new ppelm is designed especially to handle literalize format
+;;; however, it will do as well as the old ppelm on other formats
 (defun ppelm (elm port)
   (prog (ppdat sep val att mode lastpos)
-    (princ (creation-time elm) port)
-    (princ '|:  | port)
-    (setq mode 'vector)
-    (setq ppdat (gethash (car elm) *ppdat-table*))
-    (and ppdat (setq mode 'a-v))
-    (setq sep "(")				; ")" 
-    (setq lastpos 0)
-    (do ((curpos 1 (1+ curpos)) (vlist elm (cdr vlist)))
-	((atom vlist) nil)					; terminate
-      (setq val (car vlist))				; tagbody begin
-      (setq att (assoc curpos ppdat))	;should ret (curpos attr-name) 
-      (cond (att (setq att (cdr att)))	; att = (attr-name) ??
-	    (t (setq att curpos)))
-      (and (symbolp att) (is-vector-attribute att) (setq mode 'vector))
-      (cond ((or (not (null val)) (eq mode 'vector))
-	     (princ sep port)
-	     (ppval val att lastpos port)
-	     (setq sep '|    |)
-	     (setq lastpos curpos))))
-    (princ '|)| port)))
+     (princ (creation-time elm) port)
+     (princ '|:  | port)
+     (setq mode 'vector)
+     (setq ppdat (gethash (car elm) *ppdat-table*))
+     (and ppdat (setq mode 'a-v))
+     (setq sep "(")                     ; ")" 
+     (setq lastpos 0)
+     (do ((curpos 1 (1+ curpos)) (vlist elm (cdr vlist)))
+	       ((atom vlist) nil)             ; terminate
+       (setq val (car vlist))           ; tagbody begin
+       (setq att (assoc curpos ppdat))	;should ret (curpos attr-name) 
+       (cond (att (setq att (cdr att)))	; att = (attr-name) ??
+             (t (setq att curpos)))
+       (and (symbolp att) (is-vector-attribute att) (setq mode 'vector))
+       (cond ((or (not (null val)) (eq mode 'vector))
+              (princ sep port)
+              (ppval val att lastpos port)
+              (setq sep '|    |)
+              (setq lastpos curpos))))
+     (princ '|)| port)))
 
 (defun ppval (val att lastpos port)
-  ;  (break "in ppval")		
-  (cond ((not (equal att (1+ lastpos)))		; ok, if we got an att 
-	 (princ '^ port)
-	 (princ att port)
-	 (princ '| | port)))
+  ;;  (break "in ppval")		
+  (cond ((not (equal att (1+ lastpos))) ; ok, if we got an att 
+         (princ '^ port)
+         (princ att port)
+         (princ '| | port)))
   (princ val port))
 
 
 
 ;;; Printing production memory
-
 (defun ops-pm (z) (mapc #'pprule z) (terpri) nil)
 
 (defun pprule (name)
   (prog (matrix next lab)
-    (and (not (symbolp name)) (return nil))
-    (setq matrix (gethash name *production-table*))
-    (and (null matrix) (return nil))
-    (terpri)
-    (princ '|(p |)      ;)
-    (princ name)
-    top	(and (atom matrix) (go fin))
-    (setq next (car matrix))
-    (setq matrix (cdr matrix))
-    (setq lab nil)
-    (terpri)
-    (cond ((eq next '-)
-	   (princ '|  - |)
-	   (setq next (car matrix))
-	   (setq matrix (cdr matrix)))
-	  ((eq next '-->)
-	   (princ '|  |))
-	  ((and (eq next '{) (atom (car matrix)))
-	   (princ '|   {|)
-	   (setq lab (car matrix))
-	   (setq next (cadr matrix))
-	   (setq matrix (cdddr matrix)))
-	  ((eq next '{)
-	   (princ '|   {|)
-	   (setq lab (cadr matrix))
-	   (setq next (car matrix))
-	   (setq matrix (cdddr matrix)))
-	  (t (princ '|    |)))
-    (ppline next)
-    (cond (lab (princ '| |) (princ lab) (princ '})))
-    (go top)
-    fin	(princ '|)|)))
+     (and (not (symbolp name)) (return nil))
+     (setq matrix (gethash name *production-table*))
+     (and (null matrix) (return nil))
+     (terpri)
+     (princ '|(p |)                     ;)
+     (princ name)
+   top
+     (and (atom matrix) (go fin))
+     (setq next (car matrix))
+     (setq matrix (cdr matrix))
+     (setq lab nil)
+     (terpri)
+     (cond ((eq next '-)
+            (princ '|  - |)
+            (setq next (car matrix))
+            (setq matrix (cdr matrix)))
+           ((eq next '-->)
+            (princ '|  |))
+           ((and (eq next '{) (atom (car matrix)))
+            (princ '|   {|)
+            (setq lab (car matrix))
+            (setq next (cadr matrix))
+            (setq matrix (cdddr matrix)))
+           ((eq next '{)
+            (princ '|   {|)
+            (setq lab (cadr matrix))
+            (setq next (car matrix))
+            (setq matrix (cdddr matrix)))
+           (t (princ '|    |)))
+     (ppline next)
+     (cond (lab (princ '| |) (princ lab) (princ '})))
+     (go top)
+   fin
+     (princ '|)|)))
 
 (defun ppline (line)
   (cond ((atom line) (princ line))
-	(t
-	 (princ '|(|)			;)
-	 (setq *ppline* line)
-	 (ppline2)
-					;(
-	 (princ '|)|)))
+        (t  (princ '|(|)
+            (setq *ppline* line)
+            (ppline2)
+            (princ '|)|)))
   nil)
 
 (defun ppline2 ()
   (prog (needspace)
-    (setq needspace nil)
-    top  (and (atom *ppline*) (return nil))
-    (and needspace (princ '| |))
-    (cond ((eq (car *ppline*) '^) (ppattval))
-	  (t (pponlyval)))
-    (setq needspace t)
-    (go top)))
+     (setq needspace nil)
+   top
+     (and (atom *ppline*) (return nil))
+     (and needspace (princ '| |))
+     (cond ((eq (car *ppline*) '^) (ppattval))
+	         (t (pponlyval)))
+     (setq needspace t)
+     (go top)))
 
 (defun ppattval ()
   (prog (att val)
-    (setq att (cadr *ppline*))
-    (setq *ppline* (cddr *ppline*))
-    (setq val (getval))
-    ;###	(cond ((> (+ (nwritn) (flatc att) (flatc val)) 76.)))
-    ;@@@ nwritn no arg
-    ;						;"plus" changed to "+" by gdw
-    ;	       (terpri)
-    ;	       (princ '|        |)
-    (princ '^)
-    (princ att)
-    (mapc (function (lambda (z) (princ '| |) (princ z))) val)))
+     (setq att (cadr *ppline*))
+     (setq *ppline* (cddr *ppline*))
+     (setq val (getval))
+     (princ '^)
+     (princ att)
+     (mapc (function (lambda (z) (princ '| |) (princ z))) val)))
 
 (defun pponlyval ()
   (prog (val needspace)
-    (setq val (getval))
-    (setq needspace nil)
-    ;###	(cond ((> (+ (nwritn) (flatc val)) 76.)))
-    ;"plus" changed to "+" by gdw
-    ;	       (setq needspace nil)		;^nwritn no arg @@@
-    ;	       (terpri)
-    ;	       (princ '|        |)
-    top	(and (atom val) (return nil))
-    (and needspace (princ '| |))
-    (setq needspace t)
-    (princ (car val))
-    (setq val (cdr val))
-    (go top)))
+     (setq val (getval))
+     (setq needspace nil)
+   top
+     (and (atom val) (return nil))
+     (and needspace (princ '| |))
+     (setq needspace t)
+     (princ (car val))
+     (setq val (cdr val))
+     (go top)))
 
 (defun getval ()
   (let ((v1 (pop *ppline*))
-	res)
+	      res)
     (cond ((member v1 '(= <> < <= => > <=>))
-	   (setq res (cons v1 (getval))))
-	  ((eq v1 '{)
-	   (setq res (cons v1 (getupto '}))))
-	  ((eq v1 '<<)
-	   (setq res (cons v1 (getupto '>>))))
-	  ((eq v1 '//)
-	   (setq res (list v1 (car *ppline*)))
-	   (setq *ppline* (cdr *ppline*)))
-	  (t (setq res (list v1))))
+           (setq res (cons v1 (getval))))
+          ((eq v1 '{)
+           (setq res (cons v1 (getupto '}))))
+          ((eq v1 '<<)
+           (setq res (cons v1 (getupto '>>))))
+          ((eq v1 '//)
+           (setq res (list v1 (car *ppline*)))
+           (setq *ppline* (cdr *ppline*)))
+          (t (setq res (list v1))))
     res))
 
 (defun getupto (end)
   (if (atom *ppline*) nil
       (let ((v (pop *ppline*)))
-	(if (eq v end) 
-	    (list v)
-	    (cons v (getupto end))))))
+        (if (eq v end) 
+            (list v)
+            (cons v (getupto end))))))
 
 #+ops5
 (in-package :cl-user)
