@@ -311,7 +311,6 @@
      (eval-args z)
      ($assert))) 
 
-
 (defun ops-bind (z)
   (prog (val)
      (cond ((not *in-rhs*)
@@ -340,13 +339,11 @@
        (%warn '|cbind: nothing added yet| (car z)))
       (t (make-ce-var-bind (car z) *last*)))) 
 
-
 (defun ops-call (z)
   (let ((f (car z)))
     ($reset)
     (eval-args (cdr z))
     (funcall f))) 
-
 
 (defun halt () 
   (cond ((not *in-rhs*)
@@ -492,7 +489,7 @@
      (setq v (car vlist))
      (setq ind (cadr vlist))
      (setq vlist (cddr vlist))
-     (setq r (nth (1- ind) *data-matched*)) ; was ce-gelm
+     (setq r (nth (1- ind) *data-matched*)) ;; was ce-gelm
      (setq *ce-variable-memory*
 	         (cons (cons v r) *ce-variable-memory*))
      (go top))) 
@@ -531,7 +528,7 @@
      (and (atom z) (return nil))
      (setq r (car z))
      (setq z (cdr z))
-     (cond ((consp  r)                  ;dtpr\consp gdw
+     (cond ((consp  r)
             ($value '\()
 	          (build-collect r)
 	          ($value '\)))
@@ -555,7 +552,6 @@
 ;;;; These functions provide an interface to the result array.
 ;;;; The result array is used to organize attribute values into their
 ;;;; correct slot.
-
 (defun $litbind (x)
   (if (symbolp x)
       (or (literal-binding-of x)
@@ -573,7 +569,7 @@
       x))
 
 (defun $change (x)
-  (if (consp  x)                        ;dtpr\consp gdw
+  (if (consp  x)
       (eval-function x)	
       ($value ($varbind x)))) 
 
