@@ -614,8 +614,7 @@
   (setq *last* (use-result-array))
   (add-to-wm *last* nil))
 
-(defun $parametercount ()
-  *max-index*)
+(defun $parametercount () *max-index*)
 
 (defun $parameter (k)
   (cond ((or (not (numberp k))
