@@ -25,12 +25,9 @@
 
 
 ;;; External global variables
-
 (defvar *current-token* nil)
 
-
 ;;; Internal global variables
-
 (defvar *alpha-data-part* nil)
 (defvar *alpha-flag-part* nil)
 (defvar *flag-part* nil)
@@ -38,7 +35,7 @@
 (defvar *sendtocall* nil)
 (defvar *side* nil)
 
-;; Define register variables *c1* through *c127*
+;;; Define register variables *c1* through *c127*
 (macrolet ((define-registers ()
              `(progn
                 ,@(loop for i from 1 to 127
@@ -46,21 +43,15 @@
                         collect `(defvar ,name)))))
   (define-registers))
 
-
-
 ;;; Network interpreter
-
-
 (defun match-init ()
   (setq *current-token* 0.))
-
 
 (defun match (flag wme)
   (sendto flag (list wme) 'left (list *first-node*)))
 
-; note that eval-nodelist is not set up to handle building
-; productions.  would have to add something like ops4's build-flag
-
+;;; note that eval-nodelist is not set up to handle building
+;;; productions.  would have to add something like ops4's build-flag
 (defun eval-nodelist (nl)
   (dolist (node nl)
     (setq *sendtocall* nil)
@@ -76,7 +67,7 @@
     (setq *last-node* node)
     (apply (car node) (cdr node)))) 
 
-; &bus sets up the registers for the one-input nodes.  note that this
+;;; &bus sets up the registers for the one-input nodes.  note that this
 (defun &bus (outs)
   (prog (dp)
     (setq *alpha-flag-part* *flag-part*)
@@ -220,14 +211,14 @@
      (cond ((numberp z) (go number)))
    symbol
      (cond ((null const-list) (return nil))
-		       ((eq (car const-list) z) (go ok))
-		       (t (setq const-list (cdr const-list)) (go symbol)))
+	         ((eq (car const-list) z) (go ok))
+	         (t (setq const-list (cdr const-list)) (go symbol)))
    number
      (cond ((null const-list) (return nil))
-		       ((and (numberp (setq c (car const-list)))
-		             (=alg c z))
-		        (go ok))
-		       (t (setq const-list (cdr const-list)) (go number)))
+	         ((and (numberp (setq c (car const-list)))
+	               (=alg c z))
+	          (go ok))
+	         (t (setq const-list (cdr const-list)) (go number)))
    ok
      (eval-nodelist outs))) 
 
@@ -244,13 +235,13 @@
 (defun teqn (outs register constant)
   (let ((z (fast-symeval register)))
     (when (and (numberp z)
-	       (=alg z constant))
+               (=alg z constant))
       (eval-nodelist outs)))) 
 
 (defun tnen (outs register constant)
   (let ((z (fast-symeval register)))
     (when (or (not (numberp z))
-	      (not (=alg z constant)))
+              (not (=alg z constant)))
       (eval-nodelist outs)))) 
 
 (defun txxn (outs register constant)
@@ -262,119 +253,119 @@
 (defun tltn (outs register constant)
   (let ((z (fast-symeval register)))
     (when (and (numberp z)
-	       (> constant z))
+               (> constant z))
       (eval-nodelist outs)))) 
 
 (defun tgtn (outs register constant)
   (let ((z (fast-symeval register)))
     (when (and (numberp z)
-	             (> z constant))
+               (> z constant))
       (eval-nodelist outs)))) 
 
 (defun tgen (outs register constant)
   (let ((z (fast-symeval register)))
     (when (and (numberp z)
-	             (not (> constant z)))
+               (not (> constant z)))
       (eval-nodelist outs)))) 
 
 (defun tlen (outs register constant)
   (let ((z (fast-symeval register)))
     (when (and (numberp z)
-	             (not (> z constant)))
+               (not (> z constant)))
       (eval-nodelist outs)))) 
 
 (defun teqs (outs vara varb)
   (let* ((a (fast-symeval vara)) 
-	       (b (fast-symeval varb)))
+         (b (fast-symeval varb)))
     (cond ((eq a b) 
-	         (eval-nodelist outs))
-	        ((and (numberp a)
-		            (numberp b)
-		            (=alg a b))
-	         (eval-nodelist outs))))) 
+           (eval-nodelist outs))
+          ((and (numberp a)
+                (numberp b)
+                (=alg a b))
+           (eval-nodelist outs))))) 
 
 (defun tnes (outs vara varb)
   (let* ((a (fast-symeval vara)) 
-	       (b (fast-symeval varb)))
+         (b (fast-symeval varb)))
     (cond ((eq a b) 
-	         nil)
-	        ((and (numberp a)
-		            (numberp b)
-		            (=alg a b))
-	         nil)
-	        (t (eval-nodelist outs))))) 
+           nil)
+          ((and (numberp a)
+	              (numberp b)
+	              (=alg a b))
+           nil)
+          (t (eval-nodelist outs))))) 
 
 (defun txxs (outs vara varb)
   (let* ((a (fast-symeval vara)) 
-	       (b (fast-symeval varb)))
+         (b (fast-symeval varb)))
     (cond ((and (numberp a) (numberp b)) (eval-nodelist outs))
-	        ((and (not (numberp a)) (not (numberp b)))
-	         (eval-nodelist outs))))) 
+          ((and (not (numberp a)) (not (numberp b)))
+           (eval-nodelist outs))))) 
 
 (defun tlts (outs vara varb)
   (let* ((a (fast-symeval vara)) 
-	       (b (fast-symeval varb)))
+         (b (fast-symeval varb)))
     (when (and (numberp a)
-	             (numberp b)
-	             (> b a))
+               (numberp b)
+               (> b a))
       (eval-nodelist outs)))) 
 
 (defun tgts (outs vara varb)
   (let* ((a (fast-symeval vara)) 
-	       (b (fast-symeval varb)))
+         (b (fast-symeval varb)))
     (when (and (numberp a)
-	             (numberp b)
-	             (> a b))
+               (numberp b)
+               (> a b))
       (eval-nodelist outs)))) 
 
 (defun tges (outs vara varb)
   (let* ((a (fast-symeval vara)) 
-	       (b (fast-symeval varb)))
+         (b (fast-symeval varb)))
     (when (and (numberp a)
-	             (numberp b)
-	             (not (> b a)))
+               (numberp b)
+               (not (> b a)))
       (eval-nodelist outs)))) 
 
 (defun tles (outs vara varb)
   (let* ((a (fast-symeval vara)) 
-	       (b (fast-symeval varb)))
+         (b (fast-symeval varb)))
     (when (and (numberp a)
-	             (numberp b)
-	             (not (> a b)))
+               (numberp b)
+               (not (> a b)))
       (eval-nodelist outs)))) 
 
 (defun &two (left-outs right-outs)
   (prog (fp dp)
      (cond (*sendtocall*
-	          (setq fp *flag-part*)
-	          (setq dp *data-part*))
-	         (t
-	          (setq fp *alpha-flag-part*)
-	          (setq dp *alpha-data-part*)))
+            (setq fp *flag-part*)
+            (setq dp *data-part*))
+           (t
+            (setq fp *alpha-flag-part*)
+            (setq dp *alpha-data-part*)))
      (sendto fp dp 'left left-outs)
      (sendto fp dp 'right right-outs))) 
 
 (defun &mem (left-outs right-outs memory-list)
   (prog (fp dp)
      (cond (*sendtocall*
-	          (setq fp *flag-part*)
-	          (setq dp *data-part*))
-	         (t
-	          (setq fp *alpha-flag-part*)
-	          (setq dp *alpha-data-part*)))
+            (setq fp *flag-part*)
+            (setq dp *data-part*))
+           (t
+            (setq fp *alpha-flag-part*)
+            (setq dp *alpha-data-part*)))
      (sendto fp dp 'left left-outs)
      (add-token memory-list fp dp nil)
      (sendto fp dp 'right right-outs))) 
 
 (defun &and (outs lpred rpred tests)
   (let ((mem (if (eq *side* 'right) 
-		             (memory-part lpred)
-		             (memory-part rpred))))
+	               (memory-part lpred)
+	               (memory-part rpred))))
     (cond ((not mem) nil)
-	        ((eq *side* 'right)
-	         (and-right outs mem tests))
-	        (t
-	         (and-left outs mem tests))))) 
+          ((eq *side* 'right)
+           (and-right outs mem tests))
+          (t
+           (and-left outs mem tests))))) 
 
 (defun and-left (outs mem tests)
   (prog (fp dp memdp tlist tst lind rind res)
@@ -396,7 +387,7 @@
      ;;###        (comment the next line differs in and-left & -right)
      (setq res (funcall tst (gelm memdp rind) (gelm dp lind)))
      (cond (res (go tloop))
-	         (t (go fail)))
+           (t (go fail)))
    succ 
      ;;###	(comment the next line differs in and-left & -right)
      (sendto fp (cons (car memdp) dp) 'left outs)
@@ -422,7 +413,7 @@
      ;;###        (comment the next line differs in and-left & -right)
      (setq res (funcall tst (gelm dp rind) (gelm memdp lind)))
      (cond (res (go tloop))
-	         (t (go fail)))
+           (t (go fail)))
    succ 
      ;;###        (comment the next line differs in and-left & -right)
      (sendto fp (cons (car dp) memdp) 'right outs)
@@ -431,58 +422,58 @@
 
 (defun teqb (new eqvar)
   (cond ((eq new eqvar) t)
-	      ((not (numberp new)) nil)
-	      ((not (numberp eqvar)) nil)
-	      ((=alg new eqvar) t)
-	      (t nil))) 
+        ((not (numberp new)) nil)
+        ((not (numberp eqvar)) nil)
+        ((=alg new eqvar) t)
+        (t nil))) 
 
 (defun tneb (new eqvar)
   (cond ((eq new eqvar) nil)
-	      ((not (numberp new)) t)
-	      ((not (numberp eqvar)) t)
-	      ((=alg new eqvar) nil)
-	      (t t))) 
+        ((not (numberp new)) t)
+        ((not (numberp eqvar)) t)
+        ((=alg new eqvar) nil)
+        (t t))) 
 
 (defun tltb (new eqvar)
   (cond ((not (numberp new)) nil)
-	      ((not (numberp eqvar)) nil)
-	      ((> eqvar new) t)
-	      (t nil))) 
+        ((not (numberp eqvar)) nil)
+        ((> eqvar new) t)
+        (t nil))) 
 
 (defun tgtb (new eqvar)
   (cond ((not (numberp new)) nil)
-	      ((not (numberp eqvar)) nil)
-	      ((> new eqvar) t)
-	      (t nil))) 
+        ((not (numberp eqvar)) nil)
+        ((> new eqvar) t)
+        (t nil))) 
 
 (defun tgeb (new eqvar)
   (cond ((not (numberp new)) nil)
-	      ((not (numberp eqvar)) nil)
-	      ((not (> eqvar new)) t)
-	      (t nil))) 
+        ((not (numberp eqvar)) nil)
+        ((not (> eqvar new)) t)
+        (t nil))) 
 
 (defun tleb (new eqvar)
   (cond ((not (numberp new)) nil)
-	      ((not (numberp eqvar)) nil)
-	      ((not (> new eqvar)) t)
-	      (t nil))) 
+        ((not (numberp eqvar)) nil)
+        ((not (> new eqvar)) t)
+        (t nil))) 
 
 (defun txxb (new eqvar)
   (cond ((numberp new)
-	       (cond ((numberp eqvar) t)
-	             (t nil)))
-	      ((numberp eqvar) nil)
-	      (t t))) 
+         (cond ((numberp eqvar) t)
+               (t nil)))
+        ((numberp eqvar) nil)
+        (t t))) 
 
 (defun &p (rating name var-dope ce-var-dope rhs)
   (declare (ignore var-dope ce-var-dope rhs))
   (prog (fp dp)
      (cond (*sendtocall*
-	          (setq fp *flag-part*)
-	          (setq dp *data-part*))
-	         (t
-	          (setq fp *alpha-flag-part*)
-	          (setq dp *alpha-data-part*)))
+            (setq fp *flag-part*)
+            (setq dp *data-part*))
+           (t
+            (setq fp *alpha-flag-part*)
+            (setq dp *alpha-data-part*)))
      (and (member fp '(nil old)) (removecs name dp))
      (and fp (insertcs name dp rating)))) 
 
@@ -492,8 +483,8 @@
 
 (defun &not (outs lmem rpred tests)
   (cond ((and (eq *side* 'right) (eq *flag-part* 'old)) nil)
-	      ((eq *side* 'right) (not-right outs (car lmem) tests))
-	      (t (not-left outs (memory-part rpred) tests lmem)))) 
+        ((eq *side* 'right) (not-right outs (car lmem) tests))
+        (t (not-left outs (memory-part rpred) tests lmem)))) 
 
 (defun not-left (outs mem tests own-mem)
   (prog (fp dp memdp tlist tst lind rind res c)
@@ -526,8 +517,8 @@
      (setq fp *flag-part*)
      (setq dp *data-part*)
      (cond ((not fp) (setq inc -1.) (setq newfp 'new))
-	         ((eq fp 'new) (setq inc 1.) (setq newfp nil))
-	         (t (return nil)))
+           ((eq fp 'new) (setq inc 1.) (setq newfp nil))
+           (t (return nil)))
    fail
      (and (null mem) (return nil))
      (setq memdp (car mem))
@@ -544,27 +535,25 @@
      ;;###        (comment the next line differs in not-left & -right)
      (setq res (funcall tst (gelm dp rind) (gelm memdp lind)))
      (cond (res (go tloop))
-	         (t (setq mem (cddr mem)) (go fail)))
+           (t (setq mem (cddr mem)) (go fail)))
    succ
-     (setq newc (+ inc newc))           ;"plus" changed to "+" by gdw
+     (setq newc (+ inc newc))
      (rplaca (cdr mem) newc)
      (cond ((or (and (== inc -1.) (== newc 0.))
-	              (and (== inc 1.) (== newc 1.)))
-	          (sendto newfp memdp 'right outs)))
+                (and (== inc 1.) (== newc 1.)))
+            (sendto newfp memdp 'right outs)))
      (setq mem (cddr mem))
      (go fail))) 
 
 ;;; Node memories
-
-
 (defun add-token (memlis flag data-part num)
   (let (was-present)
     (cond ((eq flag 'new)
-	         (setq was-present nil)
-	         (real-add-token memlis data-part num))
-	        ((not flag) 
-	         (setq was-present (remove-old memlis data-part num)))
-	        ((eq flag 'old) (setq was-present t)))
+           (setq was-present nil)
+           (real-add-token memlis data-part num))
+          ((not flag) 
+           (setq was-present (remove-old memlis data-part num)))
+          ((eq flag 'old) (setq was-present t)))
     was-present))
 
 (defun real-add-token (lis data-part num)
@@ -582,39 +571,39 @@
   (prog (m next last)
      (setq m (car lis))
      (cond ((atom m) (return nil))
-	         ((top-levels-eq data (car m))
-	          (setq *current-token* (1- *current-token*))
-	          (rplaca lis (cddr m))
-	          (return (car m))))
+           ((top-levels-eq data (car m))
+            (setq *current-token* (1- *current-token*))
+            (rplaca lis (cddr m))
+            (return (car m))))
      (setq next m)
    loop
      (setq last next)
      (setq next (cddr next))
      (cond ((atom next) (return nil))
-	         ((top-levels-eq data (car next))
-	          (rplacd (cdr last) (cddr next))
-	          (setq *current-token* (1- *current-token*))
-	          (return (car next)))
-	         (t (go loop))))) 
+           ((top-levels-eq data (car next))
+            (rplacd (cdr last) (cddr next))
+            (setq *current-token* (1- *current-token*))
+            (return (car next)))
+           (t (go loop))))) 
 
 (defun remove-old-no-num (lis data)
   (prog (m next last)
      (setq m (car lis))
      (cond ((atom m) (return nil))
-	         ((top-levels-eq data (car m))
-	          (setq *current-token* (1- *current-token*))
-	          (rplaca lis (cdr m))
-	          (return (car m))))
+           ((top-levels-eq data (car m))
+            (setq *current-token* (1- *current-token*))
+            (rplaca lis (cdr m))
+            (return (car m))))
      (setq next m)
    loop
      (setq last next)
      (setq next (cdr next))
      (cond ((atom next) (return nil))
-	         ((top-levels-eq data (car next))
-	          (rplacd last (cdr next))
-	          (setq *current-token* (1- *current-token*))
-	          (return (car next)))
-	         (t (go loop))))) 
+           ((top-levels-eq data (car next))
+            (rplacd last (cdr next))
+            (setq *current-token* (1- *current-token*))
+            (return (car next)))
+           (t (go loop))))) 
 
 #+ops5
 (in-package :cl-user)
