@@ -16,6 +16,7 @@
 ;;; authors or by Carnegie-Mellon University.
 ;;;
 
+#+ops5
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (unless (find-package :ops)
     (make-package :ops :use (list 'cl))))
@@ -28,7 +29,6 @@
 (export '(#:make #:modify #:crlf #:--> ))
 
 ;;; Global variables also used by OPS modules.
-
 (defvar *halt-flag*)
 (defvar *cycle-count*)
 (defvar *p-name*)
@@ -36,14 +36,11 @@
 (defvar *wtrace*)
 
 ;;; Hash Tables.
-
 (defvar *conflicts-table* (make-hash-table))
-
 (defvar *vector-attribute-table* (make-hash-table))
-(defun set-vector-attribute (att)
-  (setf (gethash att *vector-attribute-table*) t))
-(defun is-vector-attribute (att)
-  (gethash att *vector-attribute-table*))
+
+(defun set-vector-attribute (att) (setf (gethash att *vector-attribute-table*) t))
+(defun is-vector-attribute (att)  (gethash att *vector-attribute-table*))
 
 (defvar *att-list-table* (make-hash-table))
 (defvar *ppdat-table* (make-hash-table))
@@ -70,13 +67,12 @@
   (clrhash *topnode-table*)
   (clrhash *external-routine-table*))
 
-
+;;; JSCL frob's for missing CL features
 (defun svref (v i) (aref v i))
 
 (defun float (v) v)
 
-(defun delete (x seq &rest keys)
-  (apply 'remove x seq keys))
+(defun delete (x seq &rest keys) (apply 'remove x seq keys))
 
 (defun force-output (&rest x) nil)
 
